@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.0)
 project(p64editor)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # set(SDL_SHARED OFF)
@@ -86,6 +86,7 @@ add_executable(p64editor src/main.cpp
         src/utils/proc.h
         src/utils/proc.cpp
         src/build/sceneBuilder.cpp
+        src/utils/binaryFile.h
 )
 
 target_include_directories(p64editor PRIVATE
