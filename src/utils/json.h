@@ -74,4 +74,22 @@ namespace Utils::JSON
     }
     return *b;
   }
+
+  inline Color readColor(const simdjson::simdjson_result<simdjson::dom::element> &el, const std::string &key) {
+    Color col{};
+    auto val = el[key];
+    if (val.error() != simdjson::SUCCESS) {
+      return col;
+    }
+    auto arr = val.get_array();
+    if (arr.error() != simdjson::SUCCESS) {
+      return col;
+    }
+
+    col.r = arr.at(0).get_double();
+    col.g = arr.at(1).get_double();
+    col.b = arr.at(2).get_double();
+    col.a = arr.at(3).get_double();
+    return col;
+  }
 }

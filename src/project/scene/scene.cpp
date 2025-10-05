@@ -98,15 +98,7 @@ void Project::Scene::deserialize(const std::string &data)
     conf.fbWidth = Utils::JSON::readInt(docConf, "fbWidth");
     conf.fbHeight = Utils::JSON::readInt(docConf, "fbHeight");
     conf.fbFormat = Utils::JSON::readInt(docConf, "fbFormat");
-
-    auto clearColor = docConf["clearColor"];
-    if (!clearColor.error()) {
-      auto col = clearColor.get_array();
-      conf.clearColor.r = col.at(0).get_double();
-      conf.clearColor.g = col.at(1).get_double();
-      conf.clearColor.b = col.at(2).get_double();
-      conf.clearColor.a = col.at(3).get_double();
-    }
+    conf.clearColor = Utils::JSON::readColor(docConf, "clearColor");
     conf.doClearColor = Utils::JSON::readBool(docConf, "doClearColor");
     conf.doClearDepth = Utils::JSON::readBool(docConf, "doClearDepth");
   }
