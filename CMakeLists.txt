@@ -99,6 +99,7 @@ add_executable(p64editor src/main.cpp
         src/editor/pages/parts/sceneGraph.cpp
         src/project/scene/object.h
         src/project/scene/object.cpp
+        src/editor/pages/parts/objectInspector.cpp
 )
 
 target_include_directories(p64editor PRIVATE

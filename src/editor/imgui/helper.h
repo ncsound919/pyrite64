@@ -26,6 +26,14 @@ namespace ImGui::InpTable
     ImGui::EndTable();
   }
 
+  inline void add(const std::string &name) {
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(name.c_str());
+    ImGui::TableSetColumnIndex(1);
+  }
+
   inline void addString(const std::string &name, std::string &str) {
     ImGui::TableNextRow();
       ImGui::TableSetColumnIndex(0);

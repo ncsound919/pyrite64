@@ -12,6 +12,7 @@
 #include "simdjson.h"
 #include "../../utils/json.h"
 #include "../../context.h"
+#include "../../utils/hash.h"
 
 namespace
 {
@@ -59,6 +60,7 @@ Project::Scene::Scene(int id_)
 
   root.id = 0;
   root.name = "Scene";
+  root.uuid = Utils::Hash::sha256_64bit(root.name);
 
   auto doc = Utils::JSON::loadFile(getConfPath(id));
   if (doc.is_object()) {
@@ -90,15 +92,16 @@ void Project::Scene::save()
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
   auto child = std::make_shared<Object>(&parent);
-  child->uuid = nextUUID++;
-  child->name = "New Object ("+std::to_string(child->uuid)+")";
+  child->id = nextUUID++;
+  child->name = "New Object ("+std::to_string(child->id)+")";
+  child->uuid = Utils::Hash::sha256_64bit(child->name + std::to_string(rand()));
+
   parent.children.push_back(child);
   objectsMap[child->uuid] = child;
   return child;
 }
 
-void Project::Scene::removeObject(Object &obj)
-{
+void Project::Scene::removeObject(Object &obj) {
   if (ctx.selObjectUUID == obj.uuid) {
     ctx.selObjectUUID = 0;
   }

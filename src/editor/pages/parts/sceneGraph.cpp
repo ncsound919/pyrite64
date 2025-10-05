@@ -21,11 +21,18 @@ namespace
       flag |= ImGuiTreeNodeFlags_Leaf;
     }
 
+    bool isSelected = ctx.selObjectUUID == obj.uuid;
+    if (isSelected) {
+      flag |= ImGuiTreeNodeFlags_Selected;
+    }
+
     auto nameID = obj.name + "##" + std::to_string(obj.uuid);
     if(ImGui::TreeNodeEx(nameID.c_str(), flag))
     {
       if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
         ctx.selObjectUUID = obj.uuid;
+        ImGui::SetWindowFocus("Object");
+        //ImGui::SetWindowFocus("Graph");
       }
       if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
         scene.addObject(obj);

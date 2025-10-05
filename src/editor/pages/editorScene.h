@@ -6,6 +6,7 @@
 #include "parts/assetInspector.h"
 #include "parts/assetsBrowser.h"
 #include "parts/logWindow.h"
+#include "parts/objectInspector.h"
 #include "parts/projectSettings.h"
 #include "parts/sceneBrowser.h"
 #include "parts/sceneGraph.h"
@@ -25,6 +26,7 @@ namespace Editor
       SceneBrowser sceneBrowser{};
       AssetInspector assetInspector{};
       SceneInspector sceneInspector{};
+      ObjectInspector objectInspector{};
       LogWindow logWindow{};
       SceneGraph sceneGraph{};
 

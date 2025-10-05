@@ -81,14 +81,12 @@ void Editor::Scene::draw()
     viewport3d.draw();
   ImGui::End();
 
-  //if (ctx.selAssetUUID) {
   ImGui::Begin("Asset");
     assetInspector.draw();
   ImGui::End();
-  //}
 
   ImGui::Begin("Object");
-    ImGui::Text("Objects");
+    objectInspector.draw();
   ImGui::End();
 
   ImGui::Begin("Scenes");
