@@ -324,7 +324,9 @@ namespace ImViewGuizmo {
             ImVec2 lineEndPos = ImVec2(handlePos.x - lineDir.x * scaledCircleRadius, handlePos.y - lineDir.y * scaledCircleRadius);
             
             // Drawing
-            drawList->AddLine(originPos, lineEndPos, final_color, scaledLineWidth); // Use the new endpoint
+            if (direction[axis_index] > 0) {
+              drawList->AddLine(originPos, lineEndPos, final_color, scaledLineWidth); // Use the new endpoint
+            }
             drawList->AddCircleFilled(handlePos, scaledCircleRadius, final_color); // Circle remains at the original position
 
             // Highlight
