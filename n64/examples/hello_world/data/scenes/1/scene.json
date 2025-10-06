@@ -10,14 +10,7 @@
 "uuid":5151655023439922290,"pos":[0.0,0.0,0.0],"rot":[0.0,0.0,0.0,1.0],"scale":[1.0,1.0,1.0],"components":[],"children":[{"id":13,
 "name":"Test 1",
 "uuid":10013922054354267862,"pos":[1.0,0.0,0.0],"rot":[0.0,0.0,0.0,1.0],"scale":[1.0,1.0,1.0],"components":[{"id":0,
-"name":"Code a","data":{"script":42}
-},
-{"id":0,
-"name":"Code 2","data":{"script":1313}
-}],"children":[]},
-{"id":14,
-"name":"Test 2",
-"uuid":13070451526232468308,"pos":[0.0,0.0,0.0],"rot":[0.0,0.0,0.0,1.0],"scale":[1.0,1.0,1.0],"components":[{"id":0,
-"name":"Update","data":{"script":0}
+"uuid":8610499884717988503,
+"name":" Code A","data":{"script":42}
 }],"children":[]}]}
 }

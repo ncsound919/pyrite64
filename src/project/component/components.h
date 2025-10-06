@@ -16,6 +16,7 @@ namespace Project::Component
   struct Entry
   {
     int id{};
+    uint64_t uuid{};
     std::string name{};
     std::shared_ptr<void> data{};
   };

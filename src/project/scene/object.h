@@ -37,6 +37,7 @@ namespace Project
       Object() = default;
 
       void addComponent(int compID);
+      void removeComponent(uint64_t uuid);
 
       std::string serialize();
       void deserialize(Scene &scene, const simdjson::simdjson_result<simdjson::dom::element> &doc);

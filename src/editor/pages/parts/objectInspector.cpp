@@ -53,16 +53,34 @@ void Editor::ObjectInspector::draw() {
     }
   }
 
+  uint64_t compDelUUID = 0;
   for (auto &comp : obj->components)
   {
     ImGui::PushID(&comp);
 
     auto &def = Project::Component::TABLE[comp.id];
     auto name = std::string{def.icon} + "  " + comp.name;
-    if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+      if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+        ImGui::OpenPopup("CompCtx");
+      }
+
+      if(ImGui::BeginPopupContextItem("CompCtx"))
+      {
+        if (ImGui::MenuItem(ICON_FA_TRASH " Delete")) {
+          compDelUUID = comp.uuid;
+        }
+        ImGui::EndPopup();
+      }
+
       def.funcDraw(*obj, comp);
     }
     ImGui::PopID();
+  }
+
+  if (compDelUUID) {
+    obj->removeComponent(compDelUUID);
   }
 
   const char* addLabel = ICON_FA_PLUS_SQUARE " Add Component";

@@ -5,6 +5,8 @@
 #include "object.h"
 
 #include "scene.h"
+#include <algorithm>
+#include "../../utils/hash.h"
 #include "../../utils/jsonBuilder.h"
 #include "../../utils/json.h"
 
@@ -29,6 +31,7 @@ namespace
       comps.push_back({});
       Builder &builderCom = comps.back();
       builderCom.set("id", comp.id);
+      builderCom.set("uuid", comp.uuid);
       builderCom.set("name", comp.name);
       builderCom.setRaw("data", def.funcSerialize(comp));
     }
@@ -49,9 +52,21 @@ void Project::Object::addComponent(int compID) {
 
   components.push_back({
     .id = compID,
+    .uuid = Utils::Hash::sha256_64bit(
+      std::to_string(rand()) + std::to_string(compID)
+    ),
     .name = std::string{def.name},
     .data = def.funcInit(*this)
   });
+}
+
+void Project::Object::removeComponent(uint64_t uuid) {
+  std::erase_if(
+    components,
+    [uuid](const Component::Entry &entry) {
+      return entry.uuid == uuid;
+    }
+  );
 }
 
 std::string Project::Object::serialize() {
@@ -85,6 +100,7 @@ void Project::Object::deserialize(Scene &scene, const simdjson::simdjson_result<
 
       components.push_back({
         .id = id,
+        .uuid = Utils::JSON::readU64(compObj, "uuid"),
         .name = Utils::JSON::readString(compObj, "name"),
         .data = def.funcDeserialize(data)
       });
