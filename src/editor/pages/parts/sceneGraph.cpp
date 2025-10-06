@@ -29,16 +29,31 @@ namespace
     auto nameID = obj.name + "##" + std::to_string(obj.uuid);
     if(ImGui::TreeNodeEx(nameID.c_str(), flag))
     {
+      if (obj.parent && (ImGui::IsKeyPressed(ImGuiKey_Delete) || ImGui::IsKeyPressed(ImGuiKey_Backspace))) {
+        deleteObj = &obj;
+      }
+
       if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
         ctx.selObjectUUID = obj.uuid;
         ImGui::SetWindowFocus("Object");
         //ImGui::SetWindowFocus("Graph");
       }
       if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-        scene.addObject(obj);
+        ctx.selObjectUUID = obj.uuid;
+        ImGui::OpenPopup("NodePopup");
       }
-      if (ImGui::IsItemClicked(ImGuiMouseButton_Middle) && obj.parent) {
-        deleteObj = &obj;
+
+      if (ImGui::BeginPopupContextItem("NodePopup"))
+      {
+        if (ImGui::MenuItem(ICON_FA_CUBE " Add Empty")) {
+          ctx.selObjectUUID = scene.addObject(obj)->uuid;
+        }
+
+        if (obj.parent) {
+          ImGui::Separator();
+          if (ImGui::MenuItem(ICON_FA_TRASH " Delete"))deleteObj = &obj;
+        }
+        ImGui::EndPopup();
       }
 
       for(auto &child : obj.children) {

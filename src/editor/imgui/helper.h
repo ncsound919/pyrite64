@@ -13,15 +13,16 @@
 
 namespace ImGui::InpTable
 {
-  inline void start(const char *name)
+  inline bool start(const char *name)
   {
-    ImGui::BeginTable(name, 2);
+    if (!ImGui::BeginTable(name, 2))return false;
     ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
     ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch);
 
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
     ImGui::PushItemWidth(-FLT_MIN);
+    return true;
   }
 
   inline void end() {

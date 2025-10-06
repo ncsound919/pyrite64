@@ -28,28 +28,28 @@ void Editor::ObjectInspector::draw() {
 
   //if (ImGui::CollapsingHeader("General", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    ImGui::InpTable::start("General");
+    if (ImGui::InpTable::start("General")) {
+      ImGui::InpTable::addString("Name", obj->name);
 
-    ImGui::InpTable::addString("Name", obj->name);
+      int idProxy = obj->id;
+      ImGui::InpTable::addInputInt("ID", idProxy);
+      obj->id = static_cast<uint16_t>(idProxy);
 
-    int idProxy = obj->id;
-    ImGui::InpTable::addInputInt("ID", idProxy);
-    obj->id = static_cast<uint16_t>(idProxy);
+      //ImGui::InpTable::add("UUID");
+      //ImGui::Text("0x%16lX", obj->uuid);
 
-    //ImGui::InpTable::add("UUID");
-    //ImGui::Text("0x%16lX", obj->uuid);
-
-    ImGui::InpTable::end();
+      ImGui::InpTable::end();
+    }
   }
 
   if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("Transform");
+    if (ImGui::InpTable::start("Transform")) {
+      ImGui::InpTable::addInputVec3("Pos", obj->pos);
+      ImGui::InpTable::addInputVec3("Scale", obj->scale);
+      ImGui::InpTable::addInputQuat("Rot", obj->rot);
 
-    ImGui::InpTable::addInputVec3("Pos", obj->pos);
-    ImGui::InpTable::addInputVec3("Scale", obj->scale);
-    ImGui::InpTable::addInputQuat("Rot", obj->rot);
-
-    ImGui::InpTable::end();
+      ImGui::InpTable::end();
+    }
   }
 
   if (ImGui::CollapsingHeader("Components", ImGuiTreeNodeFlags_DefaultOpen)) {
