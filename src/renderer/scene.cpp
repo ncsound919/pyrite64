@@ -40,27 +40,44 @@ Renderer::Scene::Scene()
   pipelineInfo.vertex_input_state.vertex_buffer_descriptions = vertBuffDesc;
 
   // describe the vertex attribute
-  SDL_GPUVertexAttribute vertexAttributes[2];
+  std::array<SDL_GPUVertexAttribute, 4> vertexAttributes{};
+  int idx = 0;
 
-  // a_position
-  vertexAttributes[0].buffer_slot = 0; // fetch data from the buffer at slot 0
-  vertexAttributes[0].location = 0; // layout (location = 0) in shader
-  vertexAttributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3; //vec3
-  vertexAttributes[0].offset = 0; // start from the first byte from current buffer position
+  // Position
+  vertexAttributes[idx].buffer_slot = 0; // fetch data from the buffer at slot 0
+  vertexAttributes[idx].location = idx; // layout (location = 0) in shader
+  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, pos);
+  ++idx;
 
-  // a_color
-  vertexAttributes[1].buffer_slot = 0; // use buffer at slot 0
-  vertexAttributes[1].location = 1; // layout (location = 1) in shader
-  vertexAttributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4; //vec4
-  vertexAttributes[1].offset = sizeof(float) * 3; // 4th float from current buffer position
+  // Normal
+  vertexAttributes[idx].buffer_slot = 0;
+  vertexAttributes[idx].location = idx;
+  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, norm);
+  ++idx;
 
-  pipelineInfo.vertex_input_state.num_vertex_attributes = 2;
-  pipelineInfo.vertex_input_state.vertex_attributes = vertexAttributes;
+  // Color
+  vertexAttributes[idx].buffer_slot = 0;
+  vertexAttributes[idx].location = idx;
+  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4;
+  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, color);
+  ++idx;
+
+  // UV
+  vertexAttributes[idx].buffer_slot = 0;
+  vertexAttributes[idx].location = idx;
+  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, uv);
+  ++idx;
+
+  pipelineInfo.vertex_input_state.num_vertex_attributes = vertexAttributes.size();
+  pipelineInfo.vertex_input_state.vertex_attributes = vertexAttributes.data();
 
   // describe the color target
-  SDL_GPUColorTargetDescription colorTargetDescriptions[1];
-  colorTargetDescriptions[0] = {};
-  colorTargetDescriptions[0].format = SDL_GetGPUSwapchainTextureFormat(ctx.gpu, ctx.window);
+  SDL_GPUColorTargetDescription colorTargetDescriptions[1] {
+    {.format = SDL_GetGPUSwapchainTextureFormat(ctx.gpu, ctx.window)}
+  };
 
   pipelineInfo.target_info.num_color_targets = 1;
   pipelineInfo.target_info.color_target_descriptions = colorTargetDescriptions;

@@ -29,9 +29,14 @@ Editor::Viewport3D::Viewport3D()
   });
 
   vertices.clear();
-  vertices.push_back({0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f});
-  vertices.push_back({-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f});
-  vertices.push_back({0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f});
+  // cube:
+  vertices.push_back({{-1,-1,-1}, {0,0,-1}, {1,0,0,1}, {0,0}});
+  vertices.push_back({{ 1, 1,-1}, {0,0,-1}, {0,1,0,1}, {1,1}});
+  vertices.push_back({{ 1,-1,-1}, {0,0,-1}, {0,0,1,1}, {1,0}});
+  vertices.push_back({{-1,-1,-1}, {0,0,-1}, {1,0,0,1}, {0,0}});
+  vertices.push_back({{-1, 1,-1}, {0,0,-1}, {1,1,0,1}, {0,1}});
+  vertices.push_back({{ 1, 1,-1}, {0,0,-1}, {0,1,0,1}, {1,1}});
+  // top
 
   vertBuff = new Renderer::VertBuffer({sizeof(vertices), ctx.gpu});
   vertBuff->setData(vertices);
