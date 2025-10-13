@@ -28,7 +28,7 @@ Renderer::Shader::Shader(const std::string &name, SDL_GPUDevice* device)
   vertexInfo.num_samplers = 0;
   vertexInfo.num_storage_buffers = 0;
   vertexInfo.num_storage_textures = 0;
-  vertexInfo.num_uniform_buffers = 0;
+  vertexInfo.num_uniform_buffers = 2;
   shaderVert = SDL_CreateGPUShader(device, &vertexInfo);
 
   // create the fragment shader

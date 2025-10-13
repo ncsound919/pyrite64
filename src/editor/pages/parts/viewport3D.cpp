@@ -8,6 +8,7 @@
 #include "ImViewGuizmo.h"
 #include "../../../context.h"
 #include "../../../renderer/scene.h"
+#include "../../../renderer/uniforms.h"
 #include "SDL3/SDL_gpu.h"
 
 namespace
@@ -16,6 +17,8 @@ namespace
 
   std::vector<Renderer::Vertex> vertices{};
   Renderer::VertBuffer *vertBuff{nullptr};
+
+  Renderer::UniformsObject uniObj{};
 }
 
 Editor::Viewport3D::Viewport3D()
@@ -58,13 +61,20 @@ void Editor::Viewport3D::onRenderPass(SDL_GPUCommandBuffer* cmdBuff, SDL_GPUGrap
   SDL_GPURenderPass* renderPass3D = SDL_BeginGPURenderPass(cmdBuff, &fb.getTargetInfo(), 1, nullptr);
   SDL_BindGPUGraphicsPipeline(renderPass3D, pipeline);
 
+  camera.apply(uniGlobal);
+  SDL_PushGPUVertexUniformData(cmdBuff, 0, &uniGlobal, sizeof(uniGlobal));
+
+  uniObj.modelMat = glm::mat4(1.0f);
+  SDL_PushGPUVertexUniformData(cmdBuff, 1, &uniObj, sizeof(uniObj));
+
+
   // bind the vertex buffer
   SDL_GPUBufferBinding bufferBindings[1];
   vertBuff->addBinding(bufferBindings[0]);
   SDL_BindGPUVertexBuffers(renderPass3D, 0, bufferBindings, 1); // bind one buffer starting from slot 0
 
   //SDL_SetGPUScissor(renderPass, &scissor3D);
-  SDL_DrawGPUPrimitives(renderPass3D, 3, 1, 0, 0);
+  SDL_DrawGPUPrimitives(renderPass3D, vertices.size(), 1, 0, 0);
 
   SDL_EndGPURenderPass(renderPass3D);
 }
@@ -73,14 +83,9 @@ void Editor::Viewport3D::onCopyPass(SDL_GPUCommandBuffer* cmdBuff, SDL_GPUCopyPa
   vertBuff->upload(*copyPass);
 }
 
-namespace
-{
-  // @TODO: camera
-  constinit glm::vec3 cameraPos{};
-  constinit glm::quat cameraRot{};
-}
-
 void Editor::Viewport3D::draw() {
+  camera.update();
+
   auto currSize = ImGui::GetContentRegionAvail();
   auto currPos = ImGui::GetWindowPos();
   if (currSize.x < 64)currSize.x = 64;
@@ -93,7 +98,7 @@ void Editor::Viewport3D::draw() {
   ImGui::Image(ImTextureID(fb.getTexture()), {currSize.x, currSize.y});
 
   ImVec2 gizPos{currPos.x + currSize.x - 40, currPos.y + 104};
-  if (ImViewGuizmo::Rotate(cameraPos, cameraRot, gizPos)) {
+  if (ImViewGuizmo::Rotate(camera.pos, camera.rot, gizPos)) {
 
   }
 }
