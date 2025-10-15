@@ -11,6 +11,7 @@
 #include "../../context.h"
 
 #define IMVIEWGUIZMO_IMPLEMENTATION 1
+#include "ImGuizmo.h"
 #include "ImViewGuizmo.h"
 
 namespace
@@ -24,6 +25,7 @@ namespace
 void Editor::Scene::draw()
 {
   ImViewGuizmo::BeginFrame();
+  ImGuizmo::BeginFrame();
 
   auto &io = ImGui::GetIO();
   auto viewport = ImGui::GetMainViewport();

@@ -36,6 +36,8 @@ add_executable(p64editor src/main.cpp
         vendored/imgui/misc/cpp/imgui_stdlib.cpp
         vendored/imgui/misc/cpp/imgui_stdlib.h
 
+        vendored/ImGuizmo/ImGuizmo.cpp
+
         # editor
         src/editor/pages/editorScene.h
         src/editor/pages/editorScene.cpp
@@ -125,6 +127,7 @@ target_include_directories(p64editor PRIVATE
     vendored/ImGuiTextSelect
     vendored/ImViewGuizmo
     vendored/glm
+    vendored/ImGuizmo
 )
 
 # Link to the actual SDL3 library.

@@ -5,6 +5,7 @@
 #include "viewport3D.h"
 
 #include "imgui.h"
+#include "ImGuizmo.h"
 #include "ImViewGuizmo.h"
 #include "../../../context.h"
 #include "../../../renderer/scene.h"
@@ -19,92 +20,6 @@ namespace
   Renderer::VertBuffer *vertBuff{nullptr};
 
   Renderer::UniformsObject uniObj{};
-
-
-static bool ProjectClippedLineToScreen(
-    const glm::vec3& a,
-    const glm::vec3& b,
-    const glm::mat4& view,
-    const glm::mat4& proj,
-    ImVec2& outA,
-    ImVec2& outB,
-    const ImVec2& viewport_size)
-{
-    glm::vec4 ca = proj * view * glm::vec4(a, 1.0f);
-    glm::vec4 cb = proj * view * glm::vec4(b, 1.0f);
-
-    if (ca.w <= 0.0f && cb.w <= 0.0f)
-        return false;
-
-    // Clip against near plane
-    if (ca.w <= 0.0f || cb.w <= 0.0f)
-    {
-        glm::vec4 da = cb - ca;
-        float t = (0.0001f - ca.w) / (da.w);
-        ca = ca + da * t;
-        if (ca.w <= 0.0f) return false;
-    }
-
-    glm::vec3 na = glm::vec3(ca) / ca.w;
-    glm::vec3 nb = glm::vec3(cb) / cb.w;
-
-    outA.x = (na.x * 0.5f + 0.5f) * viewport_size.x;
-    outA.y = (-na.y * 0.5f + 0.5f) * viewport_size.y;
-    outB.x = (nb.x * 0.5f + 0.5f) * viewport_size.x;
-    outB.y = (-nb.y * 0.5f + 0.5f) * viewport_size.y;
-    return true;
-}
-
-void Draw3DGridAndAxes(
-    ImDrawList* draw_list,
-    const glm::mat4& view,
-    const glm::mat4& proj,
-    const ImVec2& viewport_size,
-    ImVec2 screen_offset = ImVec2(0, 0),
-    float grid_size = 10.0f,
-    int grid_lines = 20,
-    float line_thickness = 1.0f
-)
-{
-    if (!draw_list) return;
-
-    ImU32 grid_color = IM_COL32(180, 180, 180, 100);
-    ImU32 x_color = IM_COL32(255, 80, 80, 255);
-    ImU32 y_color = IM_COL32(80, 255, 80, 255);
-    ImU32 z_color = IM_COL32(80, 80, 255, 255);
-
-    float half = grid_size * 0.5f;
-    float step = grid_size / float(grid_lines);
-
-    ImVec2 s1, s2;
-
-    // --- Grid (XZ plane)
-    for (int i = 0; i <= grid_lines; i++)
-    {
-        float x = -half + i * step;
-        glm::vec3 p1(x, 0, -half), p2(x, 0, half);
-        if (ProjectClippedLineToScreen(p1, p2, view, proj, s1, s2, viewport_size))
-            draw_list->AddLine({s1.x + screen_offset.x, s1.y + screen_offset.y}, {s2.x + screen_offset.x, s2.y + screen_offset.y}, grid_color, line_thickness);
-
-        float z = -half + i * step;
-        glm::vec3 p3(-half, 0, z), p4(half, 0, z);
-        if (ProjectClippedLineToScreen(p3, p4, view, proj, s1, s2, viewport_size))
-            draw_list->AddLine({s1.x + screen_offset.x, s1.y + screen_offset.y}, {s2.x + screen_offset.x, s2.y + screen_offset.y}, grid_color, line_thickness);
-    }
-
-    // --- Axes
-    auto DrawAxis = [&](glm::vec3 a, glm::vec3 b, ImU32 color)
-    {
-        ImVec2 s1, s2;
-        if (ProjectClippedLineToScreen(a, b, view, proj, s1, s2, viewport_size))
-            draw_list->AddLine({s1.x + screen_offset.x, s1.y + screen_offset.y}, {s2.x + screen_offset.x, s2.y + screen_offset.y}, color, line_thickness * 2.0f);
-    };
-
-    float axis_len = grid_size * 0.6f;
-    DrawAxis(glm::vec3(0), glm::vec3(axis_len, 0, 0), x_color);
-    DrawAxis(glm::vec3(0), glm::vec3(0, axis_len, 0), y_color);
-    DrawAxis(glm::vec3(0), glm::vec3(0, 0, axis_len), z_color);
-}
 }
 
 Editor::Viewport3D::Viewport3D()
@@ -255,15 +170,22 @@ void Editor::Viewport3D::draw() {
   }
   if (!newMouseDown)isMouseDown = false;
 
+  currPos = ImGui::GetCursorScreenPos();
+
   ImGui::Image(ImTextureID(fb.getTexture()), {currSize.x, currSize.y});
   isMouseHover = ImGui::IsItemHovered();
 
   ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-  // Assume you have glm::mat4 view, proj from your camera
-  currPos.y += 50;
-  currPos.x += 8;
-  Draw3DGridAndAxes(draw_list, uniGlobal.cameraMat, uniGlobal.projMat, currSize, currPos);
+  glm::mat4 unit = glm::mat4(1.0f);
+  ImGuizmo::SetDrawlist(draw_list);
+  ImGuizmo::SetRect(currPos.x, currPos.y, currSize.x, currSize.y);
+  ImGuizmo::DrawGrid(
+    glm::value_ptr(uniGlobal.cameraMat),
+    glm::value_ptr(uniGlobal.projMat),
+    glm::value_ptr(unit),
+    10.0f
+  );
 
   if (ImViewGuizmo::Rotate(camera.posOffset, camera.rot, gizPos)) {
 

@@ -13,3 +13,6 @@
 [submodule "vendored/glm"]
 	path = vendored/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "vendored/ImGuizmo"]
+	path = vendored/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
