@@ -16,6 +16,7 @@ namespace Renderer
     private:
       std::unordered_map<uint32_t, CbRenderPass> renderPasses{};
       std::unordered_map<uint32_t, CbCopyPass> copyPasses{};
+      std::vector<CbCopyPass> copyPassesOneTime{};
 
     public:
       Scene();
@@ -29,5 +30,7 @@ namespace Renderer
 
       void addCopyPass(uint32_t id, const CbCopyPass& pass) { copyPasses[id] = pass; }
       void removeCopyPass(uint32_t id) { copyPasses.erase(id); }
+
+      void addOneTimeCopyPass(const CbCopyPass& pass) { copyPassesOneTime.push_back(pass); }
   };
 }

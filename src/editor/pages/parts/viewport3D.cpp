@@ -8,6 +8,8 @@
 #include "ImGuizmo.h"
 #include "ImViewGuizmo.h"
 #include "../../../context.h"
+#include "../../../renderer/mesh.h"
+#include "../../../renderer/object.h"
 #include "../../../renderer/scene.h"
 #include "../../../renderer/uniforms.h"
 #include "SDL3/SDL_gpu.h"
@@ -16,10 +18,10 @@ namespace
 {
   constinit uint32_t nextPassId{0};
 
-  std::vector<Renderer::Vertex> vertices{};
-  Renderer::VertBuffer *vertBuff{nullptr};
+  std::shared_ptr<Renderer::Mesh> mesh{};
 
-  Renderer::UniformsObject uniObj{};
+  Renderer::Object obj{};
+  Renderer::Object obj2{};
 }
 
 Editor::Viewport3D::Viewport3D()
@@ -32,34 +34,37 @@ Editor::Viewport3D::Viewport3D()
     onCopyPass(cmdBuff, copyPass);
   });
 
-  vertices.clear();
+  mesh = std::make_shared<Renderer::Mesh>();
+  mesh->vertices.clear();
   // cube:
 
   // large floor
-  vertices.push_back({{-10,0,-10}, {0,1,0}, {1,0,0,1}, {0,0}});
-  vertices.push_back({{ 10,0, 10}, {0,1,0}, {0,1,0,1}, {1,1}});
-  vertices.push_back({{ 10,0,-10}, {0,1,0}, {0,0,1,1}, {1,0}});
-  vertices.push_back({{-10,0,-10}, {0,1,0}, {1,0,0,1}, {0,0}});
-  vertices.push_back({{-10,0, 10}, {0,1,0}, {1,1,0,1}, {0,1}});
-  vertices.push_back({{ 10,0, 10}, {0,1,0}, {0,1,0,1}, {1,1}});
+  mesh->vertices.push_back({{-10,0,-10}, {0,1,0}, {1,0,0,1}, {0,0}});
+  mesh->vertices.push_back({{ 10,0, 10}, {0,1,0}, {0,1,0,1}, {1,1}});
+  mesh->vertices.push_back({{ 10,0,-10}, {0,1,0}, {0,0,1,1}, {1,0}});
+  mesh->vertices.push_back({{-10,0,-10}, {0,1,0}, {1,0,0,1}, {0,0}});
+  mesh->vertices.push_back({{-10,0, 10}, {0,1,0}, {1,1,0,1}, {0,1}});
+  mesh->vertices.push_back({{ 10,0, 10}, {0,1,0}, {0,1,0,1}, {1,1}});
 
-  vertices.push_back({{-1,-1, -1}, {0,0,-1}, {1,0,0,1}, {0,0}});
-  vertices.push_back({{ 1, 1, -1}, {0,0,-1}, {0,1,0,1}, {1,1}});
-  vertices.push_back({{ 1,-1, -1}, {0,0,-1}, {0,0,1,1}, {1,0}});
-  vertices.push_back({{-1,-1, -1}, {0,0,-1}, {1,0,0,1}, {0,0}});
-  vertices.push_back({{-1, 1, -1}, {0,0,-1}, {1,1,0,1}, {0,1}});
-  vertices.push_back({{ 1, 1, -1}, {0,0,-1}, {0,1,0,1}, {1,1}});
+  mesh->vertices.push_back({{-1,-1, -1}, {0,0,-1}, {1,0,0,1}, {0,0}});
+  mesh->vertices.push_back({{ 1, 1, -1}, {0,0,-1}, {0,1,0,1}, {1,1}});
+  mesh->vertices.push_back({{ 1,-1, -1}, {0,0,-1}, {0,0,1,1}, {1,0}});
+  mesh->vertices.push_back({{-1,-1, -1}, {0,0,-1}, {1,0,0,1}, {0,0}});
+  mesh->vertices.push_back({{-1, 1, -1}, {0,0,-1}, {1,1,0,1}, {0,1}});
+  mesh->vertices.push_back({{ 1, 1, -1}, {0,0,-1}, {0,1,0,1}, {1,1}});
 
-  vertices.push_back({{-1,-1, 1}, {0,0,-1}, {1,0,0,1}, {0,0}});
-  vertices.push_back({{ 1, 1, 1}, {0,0,-1}, {0,1,0,1}, {1,1}});
-  vertices.push_back({{ 1,-1, 1}, {0,0,-1}, {0,0,1,1}, {1,0}});
-  vertices.push_back({{-1,-1, 1}, {0,0,-1}, {1,0,0,1}, {0,0}});
-  vertices.push_back({{-1, 1, 1}, {0,0,-1}, {1,1,0,1}, {0,1}});
-  vertices.push_back({{ 1, 1, 1}, {0,0,-1}, {0,1,0,1}, {1,1}});
+  mesh->vertices.push_back({{-1,-1, 1}, {0,0,-1}, {1,0,0,1}, {0,0}});
+  mesh->vertices.push_back({{ 1, 1, 1}, {0,0,-1}, {0,1,0,1}, {1,1}});
+  mesh->vertices.push_back({{ 1,-1, 1}, {0,0,-1}, {0,0,1,1}, {1,0}});
+  mesh->vertices.push_back({{-1,-1, 1}, {0,0,-1}, {1,0,0,1}, {0,0}});
+  mesh->vertices.push_back({{-1, 1, 1}, {0,0,-1}, {1,1,0,1}, {0,1}});
+  mesh->vertices.push_back({{ 1, 1, 1}, {0,0,-1}, {0,1,0,1}, {1,1}});
 
+  mesh->recreate(*ctx.scene);
+  obj.setMesh(mesh);
+  obj2.setMesh(mesh);
 
-  vertBuff = new Renderer::VertBuffer({sizeof(vertices), ctx.gpu});
-  vertBuff->setData(vertices);
+  obj2.setPos({3,0,1});
 
   auto &gizStyle = ImViewGuizmo::GetStyle();
   gizStyle.scale = 0.5f;
@@ -83,24 +88,14 @@ void Editor::Viewport3D::onRenderPass(SDL_GPUCommandBuffer* cmdBuff, SDL_GPUGrap
   camera.apply(uniGlobal);
   SDL_PushGPUVertexUniformData(cmdBuff, 0, &uniGlobal, sizeof(uniGlobal));
 
-  //uniObj.modelMat = glm::mat4(1.0f);
-  uniObj.modelMat = glm::scale(glm::mat4(1.0f), {0.1f, 0.1f, 0.1f});
-  SDL_PushGPUVertexUniformData(cmdBuff, 1, &uniObj, sizeof(uniObj));
-
-
-  // bind the vertex buffer
-  SDL_GPUBufferBinding bufferBindings[1];
-  vertBuff->addBinding(bufferBindings[0]);
-  SDL_BindGPUVertexBuffers(renderPass3D, 0, bufferBindings, 1); // bind one buffer starting from slot 0
-
-  //SDL_SetGPUScissor(renderPass, &scissor3D);
-  SDL_DrawGPUPrimitives(renderPass3D, vertices.size(), 1, 0, 0);
+  obj.draw(renderPass3D, cmdBuff);
+  obj2.draw(renderPass3D, cmdBuff);
 
   SDL_EndGPURenderPass(renderPass3D);
 }
 
 void Editor::Viewport3D::onCopyPass(SDL_GPUCommandBuffer* cmdBuff, SDL_GPUCopyPass *copyPass) {
-  vertBuff->upload(*copyPass);
+  //vertBuff->upload(*copyPass);
 }
 
 void Editor::Viewport3D::draw() {

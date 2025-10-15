@@ -124,6 +124,10 @@ void Renderer::Scene::draw()
   for (const auto &passCb : copyPasses) {
     passCb.second(command_buffer, copyPass);
   }
+  for (const auto &passCb : copyPassesOneTime) {
+    passCb(command_buffer, copyPass);
+  }
+  copyPassesOneTime.clear();
   SDL_EndGPUCopyPass(copyPass);
 
   if (ctx.project)

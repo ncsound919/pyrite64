@@ -116,6 +116,10 @@ add_executable(p64editor src/main.cpp
         src/renderer/uniforms.h
         src/renderer/camera.h
         src/renderer/camera.cpp
+        src/renderer/mesh.h
+        src/renderer/mesh.cpp
+        src/renderer/object.h
+        src/renderer/object.cpp
 )
 
 target_include_directories(p64editor PRIVATE
