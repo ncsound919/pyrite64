@@ -16,84 +16,26 @@
 
 namespace
 {
-  SDL_GPUGraphicsPipeline* graphicsPipeline{nullptr};
-  Renderer::Shader *shader3d{nullptr};
 }
 
 Renderer::Scene::Scene()
 {
-  shader3d = new Shader{"main3d", ctx.gpu};
+  shaderN64 = std::make_unique<Shader>("n64", ctx.gpu);
 
-  // load the vertex shader code
-  SDL_GPUGraphicsPipelineCreateInfo pipelineInfo{};
-  shader3d->setToPipeline(pipelineInfo);
-  pipelineInfo.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
-
-  // Depth
-  pipelineInfo.depth_stencil_state.compare_op = SDL_GPU_COMPAREOP_LESS;
-  pipelineInfo.depth_stencil_state.enable_depth_test = true;
-  pipelineInfo.depth_stencil_state.enable_depth_write = true;
-  pipelineInfo.target_info.has_depth_stencil_target = true;
-  pipelineInfo.target_info.depth_stencil_format = SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT;
-
-  // describe the vertex buffers
-  SDL_GPUVertexBufferDescription vertBuffDesc[1];
-  vertBuffDesc[0].slot = 0;
-  vertBuffDesc[0].input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
-  vertBuffDesc[0].instance_step_rate = 0;
-  vertBuffDesc[0].pitch = sizeof(Renderer::Vertex);
-
-  pipelineInfo.vertex_input_state.num_vertex_buffers = 1;
-  pipelineInfo.vertex_input_state.vertex_buffer_descriptions = vertBuffDesc;
-
-  // describe the vertex attribute
-  std::array<SDL_GPUVertexAttribute, 3> vertexAttributes{};
-  int idx = 0;
-
-  // Position
-  vertexAttributes[idx].buffer_slot = 0; // fetch data from the buffer at slot 0
-  vertexAttributes[idx].location = idx; // layout (location = 0) in shader
-  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_SHORT4;
-  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, pos);
-  ++idx;
-/*
-  // Normal
-  vertexAttributes[idx].buffer_slot = 0;
-  vertexAttributes[idx].location = idx;
-  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_U;
-  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, norm);
-  ++idx;
-*/
-  // Color
-  vertexAttributes[idx].buffer_slot = 0;
-  vertexAttributes[idx].location = idx;
-  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
-  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, color);
-  ++idx;
-
-  // UV
-  vertexAttributes[idx].buffer_slot = 0;
-  vertexAttributes[idx].location = idx;
-  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_USHORT2;
-  vertexAttributes[idx].offset = offsetof(Renderer::Vertex, uv);
-  ++idx;
-
-  pipelineInfo.vertex_input_state.num_vertex_attributes = vertexAttributes.size();
-  pipelineInfo.vertex_input_state.vertex_attributes = vertexAttributes.data();
-
-  // describe the color target
-  SDL_GPUColorTargetDescription colorTargetDescriptions[1] {
-    {.format = SDL_GetGPUSwapchainTextureFormat(ctx.gpu, ctx.window)}
-  };
-
-  pipelineInfo.target_info.num_color_targets = 1;
-  pipelineInfo.target_info.color_target_descriptions = colorTargetDescriptions;
-
-  graphicsPipeline = SDL_CreateGPUGraphicsPipeline(ctx.gpu, &pipelineInfo);
+  pipelineN64 = std::make_unique<Pipeline>(Pipeline::Info{
+    .shader = *shaderN64,
+    .prim = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
+    .useDepth = true,
+    .vertPitch = sizeof(Vertex),
+    .vertLayout = {
+      {SDL_GPU_VERTEXELEMENTFORMAT_SHORT4     , offsetof(Renderer::Vertex, pos)},
+      {SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM, offsetof(Renderer::Vertex, color)},
+      {SDL_GPU_VERTEXELEMENTFORMAT_USHORT2    , offsetof(Renderer::Vertex, uv)},
+    }
+  });
 }
 
 Renderer::Scene::~Scene() {
-  SDL_ReleaseGPUGraphicsPipeline(ctx.gpu, graphicsPipeline);
   //SDL_ReleaseGPUTexture(ctx.gpu, fb3D);
 }
 
@@ -103,21 +45,21 @@ void Renderer::Scene::update()
 
 void Renderer::Scene::draw()
 {
-  ImDrawData* draw_data = ImGui::GetDrawData();
-  const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
+  const auto drawData = ImGui::GetDrawData();
+  const bool isMinimized = (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f);
 
   SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(ctx.gpu); // Acquire a GPU command buffer
 
-  SDL_GPUTexture* swapchain_texture;
-  SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, ctx.window, &swapchain_texture, nullptr, nullptr); // Acquire a swapchain texture
+  SDL_GPUTexture* swapTex{};
+  SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, ctx.window, &swapTex, nullptr, nullptr); // Acquire a swapchain texture
 
-  if(swapchain_texture == nullptr || is_minimized) {
+  if(swapTex == nullptr || isMinimized) {
     SDL_SubmitGPUCommandBuffer(command_buffer);
     return;
   }
 
   SDL_GPUColorTargetInfo targetInfo2D = {};
-  targetInfo2D.texture = swapchain_texture;
+  targetInfo2D.texture = swapTex;
   targetInfo2D.clear_color = {0.12f, 0.12f, 0.12f, 1};
   targetInfo2D.load_op = SDL_GPU_LOADOP_CLEAR;
   targetInfo2D.store_op = SDL_GPU_STOREOP_STORE;
@@ -125,7 +67,7 @@ void Renderer::Scene::draw()
   targetInfo2D.layer_or_depth_plane = 0;
   targetInfo2D.cycle = false;
 
-  ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, command_buffer);
+  ImGui_ImplSDLGPU3_PrepareDrawData(drawData, command_buffer);
 
   auto copyPass = SDL_BeginGPUCopyPass(command_buffer);
   for (const auto &passCb : copyPasses) {
@@ -140,13 +82,13 @@ void Renderer::Scene::draw()
   if (ctx.project)
   {
     for (const auto &passCb : renderPasses) {
-      passCb.second(command_buffer, graphicsPipeline);
+      passCb.second(command_buffer, pipelineN64->getPipeline());
     }
   }
 
   // Render ImGui
   SDL_GPURenderPass* renderPass2D = SDL_BeginGPURenderPass(command_buffer, &targetInfo2D, 1, nullptr);
-  ImGui_ImplSDLGPU3_RenderDrawData(draw_data, command_buffer, renderPass2D);
+  ImGui_ImplSDLGPU3_RenderDrawData(drawData, command_buffer, renderPass2D);
   SDL_EndGPURenderPass(renderPass2D);
   // Submit the command buffer
   SDL_SubmitGPUCommandBuffer(command_buffer);

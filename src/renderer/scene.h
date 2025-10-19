@@ -4,7 +4,10 @@
 */
 #pragma once
 #include <functional>
+#include <memory>
 #include <SDL3/SDL.h>
+
+#include "pipeline.h"
 
 namespace Renderer
 {
@@ -17,6 +20,9 @@ namespace Renderer
       std::unordered_map<uint32_t, CbRenderPass> renderPasses{};
       std::unordered_map<uint32_t, CbCopyPass> copyPasses{};
       std::vector<CbCopyPass> copyPassesOneTime{};
+
+      std::unique_ptr<Shader> shaderN64{};
+      std::unique_ptr<Pipeline> pipelineN64{};
 
     public:
       Scene();
