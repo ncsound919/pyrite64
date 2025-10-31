@@ -51,6 +51,8 @@ Renderer::Pipeline::Pipeline(const Info &info) {
   pipelineInfo.target_info.num_color_targets = info.drawsObjID ? 2 : 1;
   pipelineInfo.target_info.color_target_descriptions = colorTargetDescriptions;
 
+  pipelineInfo.rasterizer_state.cull_mode = SDL_GPU_CULLMODE_NONE; // done in shader
+
   pipeline = SDL_CreateGPUGraphicsPipeline(ctx.gpu, &pipelineInfo);
 }
 

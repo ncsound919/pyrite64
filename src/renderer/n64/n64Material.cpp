@@ -35,7 +35,7 @@ void Renderer::N64Material::convert(N64Mesh::MeshPart &part, const Material &t3d
 
   uint64_t cc = t3dMat.colorCombiner;
 
-  part.material.geoMode = t3dMat.drawFlags;
+  part.material.drawFlags = t3dMat.drawFlags;
   part.material.otherModeH = t3dMat.otherModeValue >> 32;
   part.material.otherModeL = t3dMat.otherModeValue & 0xFFFFFFFF;
 

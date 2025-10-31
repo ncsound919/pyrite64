@@ -80,7 +80,8 @@ void main()
   // cc_shade.rgb = norm * 0.5 + 0.5; // TEST
   cc_shade_flat = cc_shade;
 
-  vec2 uvGen = geoModeSelect(G_TEX_GEN, uvPixel, normScreen.xy * 0.5 + 0.5);
+  // @TODO: handle vertex effect
+  vec2 uvGen = uvPixel;// geoModeSelect(G_TEX_GEN, uvPixel, normScreen.xy * 0.5 + 0.5);
 
   // turn UVs ionto pixel-space, apply first tile settings
   ivec4 texSize = ivec4(textureSize(tex0, 0), textureSize(tex1, 0));

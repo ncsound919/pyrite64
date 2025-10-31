@@ -47,25 +47,12 @@
 #define BLENDER_A_MEM   10
 
 // Geometry modes (some of these should be removed)
-#define G_ZBUFFER             (1 << 0)
-#define G_SHADE               (1 << 1)
-#define G_CULL_FRONT          (1 << 2)
-#define G_CULL_BACK           (1 << 3)
-#define G_AMBOCCLUSION        (1 << 4)
-#define G_ATTROFFSET_Z        (1 << 5)
-#define G_ATTROFFSET_ST       (1 << 6)
-#define G_PACKED_NORMALS      (1 << 7)
-#define G_LIGHTTOALPHA        (1 << 8)
-#define G_LIGHTING_SPECULAR   (1 << 9)
-#define G_FRESNEL_COLOR       (1 << 10)
-#define G_FRESNEL_ALPHA       (1 << 11)
-#define G_FOG                 (1 << 12)
-#define G_LIGHTING            (1 << 13)
-#define G_TEX_GEN             (1 << 14)
-#define G_TEX_GEN_LINEAR      (1 << 15)
-#define G_LOD                 (1 << 16)
-#define G_SHADE_SMOOTH        (1 << 17)
-#define G_CLIPPING            (1 << 18)
+#define DRAWFLAG_DEPTH      (1 << 0)
+#define DRAWFLAG_TEXTURED   (1 << 1)
+#define DRAWFLAG_SHADED     (1 << 2)
+#define DRAWFLAG_CULL_FRONT (1 << 3)
+#define DRAWFLAG_CULL_BACK  (1 << 4)
+#define DRAWFLAG_NO_LIGHT   (1 << 16)
 
 // Othermode modes
 // L

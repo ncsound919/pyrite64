@@ -201,6 +201,10 @@ void main()
 
   vec4 uvTex = uv;
 
+  if((T3D_DRAW_FLAG & DRAWFLAG_CULL_BACK) != 0 && !gl_FrontFacing) {
+    discard;
+  }
+
   // @TODO: handle flat shading
   //vec4 ccShade = geoModeSelect(G_SHADE_SMOOTH, cc_shade_flat, cc_shade);
   vec4 ccShade = cc_shade;

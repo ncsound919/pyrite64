@@ -30,7 +30,7 @@ namespace Renderer
     glm::i32vec4 cc1Alpha;
 
     // "vec4 modes" in shader:
-    uint32_t geoMode;
+    uint32_t drawFlags;
     uint32_t otherModeL;
     uint32_t otherModeH;
     uint32_t flags;
