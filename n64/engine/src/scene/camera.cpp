@@ -21,6 +21,14 @@ void P64::Camera::update(float deltaTime)
   //}
 
   t3d_viewport_look_at(vp, pos, target, T3DVec3{{0, 1, 0}});
+
+/*  T3DVec3 up{{0, 1, 0}};
+  t3d_mat4_look_at(vp.matCamera, pos, target, up);
+
+  t3d_mat4_mul(&vp.matCamProj, &vp.matProj, &vp.matCamera);
+  t3d_mat4_to_frustum(&vp.viewFrustum, &vp.matCamProj);
+  vp._isCamProjDirty = false;
+  */
 }
 
 void P64::Camera::attach() {

@@ -21,6 +21,8 @@ namespace Renderer
       glm::quat rot{0,0,0,1};
       glm::vec2 screenSize{1,1};
 
+      glm::vec3 velocity{};
+
       glm::quat rotBase{};
       bool isRotating{false};
       glm::vec3 posBase{};

@@ -20,12 +20,14 @@ Renderer::Camera::Camera() {
 }
 
 void Renderer::Camera::update() {
+  pos += velocity;
+  velocity *= 0.9f;
 }
 
 void Renderer::Camera::apply(UniformGlobal &uniGlobal)
 {
   float aspect = screenSize.x / screenSize.y;
-  uniGlobal.projMat = glm::perspective(glm::radians(70.0f), aspect, 0.01f, 100.0f);
+  uniGlobal.projMat = glm::perspective(glm::radians(70.0f), aspect, 10.0f, 10'000.0f);
 
   const glm::vec3 direction = glm::normalize(rot * WORLD_FORWARD);
   const glm::vec3 dynamicUp = glm::normalize(rot * WORLD_UP);

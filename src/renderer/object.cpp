@@ -12,7 +12,7 @@ void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBu
 
   if (transformDirty) {
     auto m = glm::identity<glm::mat4>();
-    m = glm::scale(m, {1.0f, 1.0f, 1.0f});
+    m = glm::scale(m, {scale,scale,scale});
     m = glm::translate(m, pos);
     uniform.modelMat = m;
     transformDirty = false;

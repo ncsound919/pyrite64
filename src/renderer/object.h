@@ -18,6 +18,7 @@ namespace Renderer
       std::shared_ptr<N64Mesh> n64Mesh{nullptr};
 
       glm::vec3 pos{0,0,0};
+      float scale{1.0f};
       bool transformDirty{true};
 
     public:
@@ -38,6 +39,7 @@ namespace Renderer
       }
 
       void setPos(const glm::vec3& p) { pos = p; transformDirty = true; }
+      void setScale(float s) { scale = s; transformDirty = true; }
 
       void draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBuff);
   };

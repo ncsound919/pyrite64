@@ -164,6 +164,7 @@ namespace Utils
       void writeToFile(const std::string &filename) {
         FILE* file = fopen(filename.c_str(), "wb");
         fwrite(data.data(), 1, dataSize, file);
+        fflush(file);
         fclose(file);
       }
   };

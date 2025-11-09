@@ -144,9 +144,10 @@ Editor::Viewport3D::Viewport3D()
   });
 
   meshGrid = std::make_shared<Renderer::Mesh>();
-  Utils::Mesh::generateGrid(*meshGrid, 10);
+  Utils::Mesh::generateGrid(*meshGrid, 20);
   meshGrid->recreate(*ctx.scene);
   objGrid.setMesh(meshGrid);
+  objGrid.setScale(50);
 
   meshLines = std::make_shared<Renderer::Mesh>();
   objLines.setMesh(meshLines);
@@ -283,11 +284,12 @@ void Editor::Viewport3D::draw()
   mousePos.x -= screenPos.x;
   mousePos.y -= vpOffsetY;
 
-  float moveSpeed = 2.5f * deltaTime;
+  float moveSpeed = 120.0f * deltaTime;
 
   bool mouseHeldRight = ImGui::IsMouseDown(ImGuiMouseButton_Right);
   bool newMouseDown = ImGui::IsMouseDown(ImGuiMouseButton_Middle) || mouseHeldRight;
   bool isShiftDown = ImGui::GetIO().KeyShift;
+  if(isShiftDown)moveSpeed *= 4.0f;
 
   bool overGizmo = obj && ImGuizmo::IsOver();
 
@@ -304,13 +306,18 @@ void Editor::Viewport3D::draw()
   }
 
   if (newMouseDown) {
-    if (ImGui::IsKeyDown(ImGuiKey_W))camera.pos += camera.rot * glm::vec3(0,0,-moveSpeed);
-    if (ImGui::IsKeyDown(ImGuiKey_S))camera.pos += camera.rot * glm::vec3(0,0,moveSpeed);
-    if (ImGui::IsKeyDown(ImGuiKey_A))camera.pos += camera.rot * glm::vec3(-moveSpeed,0,0);
-    if (ImGui::IsKeyDown(ImGuiKey_D))camera.pos += camera.rot * glm::vec3(moveSpeed,0,0);
+    glm::vec3 moveDir = {0,0,0};
+    if (ImGui::IsKeyDown(ImGuiKey_W))moveDir.z = -moveSpeed;
+    if (ImGui::IsKeyDown(ImGuiKey_S))moveDir.z = moveSpeed;
+    if (ImGui::IsKeyDown(ImGuiKey_A))moveDir.x = -moveSpeed;
+    if (ImGui::IsKeyDown(ImGuiKey_D))moveDir.x = moveSpeed;
 
-    if (ImGui::IsKeyDown(ImGuiKey_Q))camera.pos += camera.rot * glm::vec3(0,-moveSpeed,0);
-    if (ImGui::IsKeyDown(ImGuiKey_E))camera.pos += camera.rot * glm::vec3(0,moveSpeed,0);
+    if (ImGui::IsKeyDown(ImGuiKey_Q))moveDir.y = -moveSpeed;
+    if (ImGui::IsKeyDown(ImGuiKey_E))moveDir.y = moveSpeed;
+
+    if(moveDir != glm::vec3{0,0,0}) {
+      camera.velocity = camera.rot * moveDir;
+    }
   } else {
     if (ImGui::IsKeyDown(ImGuiKey_G))gizmoOp = 0;
     if (ImGui::IsKeyDown(ImGuiKey_R))gizmoOp = 1;
@@ -352,10 +359,11 @@ void Editor::Viewport3D::draw()
 
   auto dragDelta = mousePos - mousePosStart;
   if (isMouseDown) {
-    if (isShiftDown) {
+    /*if (isShiftDown) {
       camera.stopRotateDelta();
       camera.moveDelta(dragDelta);
-    } else {
+    } else*/
+    {
       camera.stopMoveDelta();
       camera.rotateDelta(dragDelta);
     }
@@ -386,7 +394,7 @@ void Editor::Viewport3D::draw()
 
     gizmoMat = glm::recompose(obj->scale, obj->rot, obj->pos, skew, persp);
 
-    glm::vec3 snap(0.25f);
+    glm::vec3 snap(10.0f);
     if (gizmoOp == 1) {
       snap = glm::vec3(90.0f / 4.0f);
     }

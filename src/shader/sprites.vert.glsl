@@ -30,7 +30,7 @@ void main()
   vec4 posScreen = matMVP * vec4(inPosition, 1.0);
 
   float apspect = projMat[1][1] / projMat[0][0];
-  vec2 spriteSize = vec2(50);
+  vec2 spriteSize = vec2(7000);
 
   vec2 stepPerPixel = vec2(2.0 / screenSize.x, 2.0 / screenSize.y);
   spriteSize *= stepPerPixel;

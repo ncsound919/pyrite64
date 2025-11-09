@@ -10,6 +10,7 @@ namespace P64::Script::C0FCD808BF296813
     // - uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t
     // - float
 
+    float camAngleTarget = 0.0f;
     float camAngle = 0.0f;
   };
 
@@ -19,14 +20,15 @@ namespace P64::Script::C0FCD808BF296813
     auto held = joypad_get_buttons(JOYPAD_PORT_1);
     auto inp = joypad_get_inputs(JOYPAD_PORT_1);
 
-    data->camAngle += -inp.cstick_x * 0.0005f;
+    data->camAngleTarget += -inp.cstick_x * 0.0005f;
+    data->camAngle = t3d_lerp_angle(data->camAngle, data->camAngleTarget, 0.2f);
 
-    float speed = 0.05f;
+    float speed = 3.5f;
     float stick[2] = {
       inp.stick_x / 100.0f,
       inp.stick_y / 100.0f
     };
-    fm_vec3_t camDist{0, 0.6f, 1.0f};
+    fm_vec3_t camDist{0, 60.0f, 100.0f};
 
     float cosA = fm_cosf(data->camAngle);
     float sinA = fm_sinf(data->camAngle);

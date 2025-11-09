@@ -45,9 +45,14 @@ vec3 unpackNormals(int packed)
 
 void main()
 {
-  mat4 matMVP = projMat * cameraMat * material.modelMat;
-  // @TODO: do on CPU:
-  mat3 matNorm = mat3(transpose(inverse(material.modelMat)));
+  mat4 matMV = quantizeMat4(cameraMat * material.modelMat);
+  mat4 matMVP = projMat * matMV;
+
+  mat3 matNorm = mat3(material.modelMat);
+  matNorm[0] = normalize(matNorm[0]);
+  matNorm[1] = normalize(matNorm[1]);
+  matNorm[2] = normalize(matNorm[2]);
+  matNorm = quantizeMat3(matNorm);
 
   vec2 uvPixel = (vec2(inUV) / float(1 << 5));
   v_objectID = material.objectID;
@@ -56,14 +61,14 @@ void main()
 
   // Directional light
   vec3 norm = inNormal;
-  vec3 normScreen = normalize(matNorm * norm);
+  vec3 normScreen = matNorm * norm;
 
   cc_shade = inColor;
 
   //vec4 lightTotal = vec4(linearToGamma(material.ambientColor.rgb), 0.0);
   vec4 lightTotal = vec4(material.ambientColor.rgb, 0.0);
   for(int i=0; i<2; ++i) {
-    float lightStren = max(dot(norm, material.lightDir[i].xyz), 0.0);
+    float lightStren = max(dot(normScreen, material.lightDir[i].xyz), 0.0);
     //vec4 colorNorm = vec4(linearToGamma(material.lightColor[i].rgb), 1.0);
     vec4 colorNorm = vec4(material.lightColor[i].rgb, 1.0);
     lightTotal += colorNorm * lightStren;
