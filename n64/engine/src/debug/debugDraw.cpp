@@ -92,8 +92,9 @@ void Debug::drawSphere(const fm_vec3_t &center, float radius, color_t color) {
 
 void Debug::draw(uint16_t *fb) {
   if(lines.empty())return;
+
   debugf("Drawing %d lines, %d rects\n", lines.size());
-  //rspq_wait();
+  rspq_wait();
 
   for(auto &line : lines) {
     t3d_viewport_calc_viewspace_pos(nullptr, &line.a, &line.a);

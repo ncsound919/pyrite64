@@ -20,7 +20,7 @@ namespace P64::Comp
       return sizeof(Code) + scriptPtr.dataSize;
     }
 
-    static void initDelete(Object& obj, Code* data, uint16_t* initData)
+    static void initDelete([[maybe_unused]] Object& obj, Code* data, uint16_t* initData)
     {
       if (initData == nullptr)return;
 

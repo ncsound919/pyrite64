@@ -92,6 +92,8 @@ void P64::Scene::update(float deltaTime) {
   {
     if(!obj->isEnabled())continue;
 
+    //Debug::drawAABB(obj->pos, {10.0f, 10.0f, 10.0f}, {0xFF,0,0,0x40});
+
     auto compRefs = obj->getCompRefs();
 
     for (uint32_t i=0; i<obj->compCount; ++i) {
@@ -124,7 +126,7 @@ void P64::Scene::update(float deltaTime) {
   VI::SwapChain::nextFrame();
 }
 
-void P64::Scene::draw(float deltaTime)
+void P64::Scene::draw([[maybe_unused]] float deltaTime)
 {
    rdpq_mode_begin();
     rdpq_set_mode_standard();

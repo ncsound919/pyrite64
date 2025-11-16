@@ -6,7 +6,7 @@
 #include "lib/logger.h"
 #include "scene/globalState.h"
 
-void P64::Camera::update(float deltaTime)
+void P64::Camera::update([[maybe_unused]] float deltaTime)
 {
   vpIdx = (vpIdx + 1) % 3;
   auto &vp = viewports[vpIdx];

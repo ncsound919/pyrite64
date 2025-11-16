@@ -17,12 +17,12 @@ namespace P64::Comp
     T3DModel *model{};
     RingMat4FP matFP{};
 
-    static uint32_t getAllocSize(uint16_t* initData)
+    static uint32_t getAllocSize([[maybe_unused]] uint16_t* initData)
     {
       return sizeof(Model);
     }
 
-    static void initDelete(Object& obj, Model* data, uint16_t* initData)
+    static void initDelete([[maybe_unused]] Object& obj, Model* data, uint16_t* initData)
     {
       if (initData == nullptr) {
         data->~Model();
@@ -48,7 +48,7 @@ namespace P64::Comp
       );
     }
 
-    static void draw(Object& obj, Model* data) {
+    static void draw([[maybe_unused]] Object& obj, Model* data) {
       t3d_matrix_set(data->matFP.get(), true);
       /*auto it = t3d_model_iter_create(data->model, T3D_CHUNK_TYPE_OBJECT);
       while(t3d_model_iter_next(&it)) {

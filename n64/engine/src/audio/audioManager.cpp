@@ -19,7 +19,6 @@ namespace
   };
 
   std::array<Slot, CHANNEL_COUNT> slots{};
-  uint16_t currentUUID{0};
 
   int32_t getFreeSlot() {
     for(uint32_t i=0; i<slots.size(); ++i) {

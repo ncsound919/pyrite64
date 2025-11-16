@@ -29,12 +29,12 @@ namespace P64::Comp
     uint8_t index{};
 
 
-    static uint32_t getAllocSize(InitData* initData)
+    static uint32_t getAllocSize([[maybe_unused]] InitData* initData)
     {
       return sizeof(Light);
     }
 
-    static void initDelete(Object& obj, Light* data, InitData* initData)
+    static void initDelete([[maybe_unused]] Object& obj, Light* data, InitData* initData)
     {
       if (initData == nullptr) {
         data->~Light();
@@ -52,7 +52,7 @@ namespace P64::Comp
       };
     }
 
-    static void update(Object& obj, Light* data) {
+    static void update([[maybe_unused]] Object& obj, Light* data) {
       auto &light = SceneManager::getCurrent().getLighting();
       if (data->type == 0) {
         light.addAmbientLight(data->color);
@@ -61,7 +61,7 @@ namespace P64::Comp
       }
     }
 
-    static void draw(Object& obj, Light* data) {
+    static void draw([[maybe_unused]] Object& obj, [[maybe_unused]] Light* data) {
 
     }
   };

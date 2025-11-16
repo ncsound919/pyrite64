@@ -23,12 +23,12 @@ namespace P64::Comp
 
     P64::Camera camera{};
 
-    static uint32_t getAllocSize(InitData* initData)
+    static uint32_t getAllocSize([[maybe_unused]] InitData* initData)
     {
       return sizeof(Camera);
     }
 
-    static void initDelete(Object& obj, Camera* data, InitData* initData)
+    static void initDelete([[maybe_unused]] Object& obj, Camera* data, InitData* initData)
     {
       if (initData == nullptr) {
         SceneManager::getCurrent().removeCamera(&data->camera);
@@ -53,10 +53,10 @@ namespace P64::Comp
       }
     }
 
-    static void update(Object& obj, Camera* data) {
+    static void update([[maybe_unused]] Object& obj, [[maybe_unused]] Camera* data) {
     }
 
-    static void draw(Object& obj, Camera* data) {
+    static void draw([[maybe_unused]] Object& obj, [[maybe_unused]] Camera* data) {
     }
   };
 }
