@@ -1,15 +1,15 @@
+#include "script/userScript.h"
 #include "scene/sceneManager.h"
 
 namespace P64::Script::C3AF5D870988CBC0
 {
-  struct Data
-  {
+  P64_DATA(
     [[P64::Name("Scene ID")]]
     uint32_t sceneId;
 
     [[P64::Name("Speed"), P64::Min("1")]]
     float speed = 1.0f;
-  };
+  )
 
   void update(Object& obj, Data *data)
   {

@@ -93,17 +93,17 @@ Utils::CPP::Struct Utils::CPP::parseDataStruct(const std::string &sourceCode, co
   std::vector<Struct> structs{};
 
   // match all structs to get the body of it
-  std::regex structRegex(R"(struct\s+(\w+)\s*\{([\s\S]*?)\};)");
+  std::regex structRegex(R"(P64_DATA\(([\s\S]*?)\);)");
 
   std::smatch structMatch;
   auto structBegin = code.cbegin();
 
   while (std::regex_search(structBegin, code.cend(), structMatch, structRegex))
   {
-    Struct s{.name = structMatch[1]};
+    Struct s{.name = "Data"};
     if (s.name != structName)continue;
 
-    std::string body = structMatch[2];
+    std::string body = structMatch[1];
 
     // Regex for attributes + field lines
     std::regex fieldRegex(

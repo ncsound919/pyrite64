@@ -1,9 +1,9 @@
+#include "script/userScript.h"
 #include "scene/sceneManager.h"
 
 namespace P64::Script::C0FCD808BF296813
 {
-  struct Data
-  {
+  P64_DATA(
     // Put your arguments here if needed, those will show up in the editor.
     //
     // Allowed types:
@@ -12,7 +12,21 @@ namespace P64::Script::C0FCD808BF296813
 
     float camAngleTarget = 0.0f;
     float camAngle = 0.0f;
-  };
+
+    Coll::BCS collBox{};
+  );
+
+  void init(Object& obj, Data *data)
+  {
+    data->collBox = {
+      .center = {0,0,0},
+      .halfExtend = {20.0f, 50.0f, 20.0f},
+      .velocity = {0,0,0},
+    };
+
+    auto &coll = SceneManager::getCurrent().getCollision();
+    coll.registerBCS(&data->collBox);
+  }
 
   void update(Object& obj, Data *data)
   {
@@ -63,5 +77,11 @@ namespace P64::Script::C0FCD808BF296813
 
   void draw(Object& obj, Data *data)
   {
+  }
+
+  void destroy(Object& obj, Data *data)
+  {
+    auto &coll = SceneManager::getCurrent().getCollision();
+    coll.unregisterBCS(&data->collBox);
   }
 }

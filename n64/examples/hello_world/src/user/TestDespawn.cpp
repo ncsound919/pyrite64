@@ -1,9 +1,9 @@
+#include "script/userScript.h"
 #include "scene/sceneManager.h"
 
 namespace P64::Script::C54E2E8B498612FE
 {
-  struct Data
-  {
+  P64_DATA(
     // Put your arguments here if needed, those will show up in the editor.
     //
     // Allowed types:
@@ -14,7 +14,7 @@ namespace P64::Script::C54E2E8B498612FE
 
     [[P64::Name("Group On")]]
     uint16_t groupOn = 0;
-  };
+  );
 
   void update(Object& obj, Data *data)
   {

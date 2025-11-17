@@ -30,11 +30,18 @@ namespace P64::Comp
       auto dataSize = Script::getCodeSizeByIndex(initData[0]);
       // reserved: initData[1];
 
+      data->funcInit = scriptPtr.init;
       data->funcUpdate = scriptPtr.update;
       data->funcDraw = scriptPtr.draw;
+      data->funcDestroy = scriptPtr.destroy;
 
       if (dataSize > 0) {
         memcpy((char*)data + sizeof(Code), (char*)&initData[2], dataSize);
+      }
+
+      if(data->funcInit) {
+        char* funcData = (char*)data + sizeof(Code);
+        data->funcInit(obj, funcData);
       }
     }
 

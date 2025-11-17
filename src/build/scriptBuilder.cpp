@@ -29,13 +29,13 @@ void Build::buildScripts(Project::Project &project, SceneCtx &sceneCtx)
     bool hasUpdate = Utils::CPP::hasFunction(src, "void", "update");
     bool hasDraw = Utils::CPP::hasFunction(src, "void", "draw");
     bool hasDestroy = Utils::CPP::hasFunction(src, "void", "destroy");
-    uint32_t dataSize = Utils::CPP::calcStructSize(script.params);
-
-    srcSizeEntries += std::to_string(dataSize) + ",\n";
 
     auto uuidStr = std::format("{:016X}", script.uuid);
 
+    srcSizeEntries += uuidStr + "::DATA_SIZE,\n";
+
     srcDecl += "  namespace " + uuidStr + " {\nstruct Data;\n";
+    srcDecl += " extern uint16_t DATA_SIZE;\n";
     if(hasInit)srcDecl += "void init(Object& obj, Data *data);\n";
     if(hasUpdate)srcDecl += "void update(Object& obj, Data *data);\n";
     if(hasDraw)srcDecl += "void draw(Object& obj, Data *data);\n";

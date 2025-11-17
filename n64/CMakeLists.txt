@@ -50,4 +50,5 @@ add_executable(n64_engine
         engine/src/debug/debugDraw.cpp
         engine/include/lib/ringBuffer.h
         engine/src/vi/vi.cpp
+        engine/include/script/userScript.h
 )
