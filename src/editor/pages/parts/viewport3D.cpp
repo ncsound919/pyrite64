@@ -432,7 +432,7 @@ void Editor::Viewport3D::draw()
     }
     bool isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
 
-    ImGuizmo::Manipulate(
+    if(ImGuizmo::Manipulate(
       glm::value_ptr(uniGlobal.cameraMat),
       glm::value_ptr(uniGlobal.projMat),
       GIZMO_OPS[gizmoOp],
@@ -440,15 +440,15 @@ void Editor::Viewport3D::draw()
       glm::value_ptr(gizmoMat),
       nullptr,
       isSnap ? glm::value_ptr(snap) : nullptr
-    );
-
-    glm::decompose(
-      gizmoMat,
-      obj->scale,
-      obj->rot,
-      obj->pos,
-      skew, persp
-    );
+    )) {
+      glm::decompose(
+        gizmoMat,
+        obj->scale,
+        obj->rot,
+        obj->pos,
+        skew, persp
+      );
+    }
   }
 
   if (ImViewGuizmo::Rotate(camera.posOffset, camera.rot, gizPos)) {
