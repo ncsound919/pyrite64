@@ -109,7 +109,15 @@ int main(int argc, char** argv)
     printf("Error: SDL_ClaimWindowForGPUDevice(): %s\n", SDL_GetError());
     return -1;
   }
-  SDL_SetGPUSwapchainParameters(ctx.gpu, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC);
+
+  SDL_GPUPresentMode presentMode = SDL_GPU_PRESENTMODE_IMMEDIATE;
+  if(!SDL_WindowSupportsGPUPresentMode(ctx.gpu, window, presentMode))
+  {
+    printf("Warning: SDL_GPU_PRESENTMODE_IMMEDIATE not supported, falling back to SDL_GPU_PRESENTMODE_VSYNC\n");
+    presentMode = SDL_GPU_PRESENTMODE_VSYNC;
+  }
+
+  SDL_SetGPUSwapchainParameters(ctx.gpu, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, presentMode);
 
   SDL_GPUSamplerCreateInfo samplerInfo{};
   samplerInfo.min_filter = SDL_GPU_FILTER_LINEAR;
@@ -147,7 +155,7 @@ int main(int argc, char** argv)
   init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(ctx.gpu, window);
   init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // Only used in multi-viewports mode.
   init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // Only used in multi-viewports mode.
-  init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
+  init_info.PresentMode = presentMode;
   ImGui_ImplSDLGPU3_Init(&init_info);
 
   {
@@ -257,6 +265,7 @@ int main(int argc, char** argv)
     bool done = false;
     while(!done) {
 
+      auto frameStart = SDL_GetTicksNS();
       ctx.isBuildOrRunning = isBuildOrRunning();
       //printf("Frame Start | Time: %.2fms\n", ImGui::GetIO().DeltaTime * 1000.0f);
       SDL_Event event;
@@ -295,6 +304,13 @@ int main(int argc, char** argv)
           if (!(event.key.mod & SDL_KMOD_CTRL) && event.key.key == SDLK_F5) {
             Editor::Actions::call(Editor::Actions::Type::ASSETS_RELOAD);
           }
+
+          if (!(event.key.mod & SDL_KMOD_CTRL) && event.key.key == SDLK_F2)
+          {
+            presentMode = (presentMode == SDL_GPU_PRESENTMODE_VSYNC) ? SDL_GPU_PRESENTMODE_IMMEDIATE : SDL_GPU_PRESENTMODE_VSYNC;
+            printf("Switched Present Mode to: %s\n", (presentMode == SDL_GPU_PRESENTMODE_VSYNC) ? "VSync" : "Immediate");
+            SDL_SetGPUSwapchainParameters(ctx.gpu, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, presentMode);
+          }
         }
         // Check: io.WantCaptureMouse, io.WantCaptureKeyboard
       }
@@ -320,6 +336,15 @@ int main(int argc, char** argv)
 
       ImGui::Render();
       scene.draw();
+
+      if(presentMode != SDL_GPU_PRESENTMODE_VSYNC)
+      {
+        uint64_t targetFrameTime = 16'666'666; // ~60 FPS
+        auto frameTime = SDL_GetTicksNS() - frameStart;
+        if(frameTime < targetFrameTime) {
+          SDL_DelayNS(targetFrameTime - frameTime);
+        }
+      }
     }
   }
 
