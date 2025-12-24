@@ -12,10 +12,13 @@
 namespace
 {
   constexpr uint32_t CHANNEL_COUNT = 32;
+  constinit uint16_t nextUUID{1};
 
   struct Slot
   {
     wav64_t* audio{nullptr};
+    float volume{1.0f};
+    uint16_t uuid{0};
   };
 
   std::array<Slot, CHANNEL_COUNT> slots{};
@@ -62,10 +65,14 @@ namespace P64::AudioManager
     auto slot = audio->wave.channels == 2 ? getFreeSlotStereo() : getFreeSlot();
     if(slot < 0)return {};
 
+    ++nextUUID;
+
     slots[slot].audio = audio;
+    slots[slot].uuid = nextUUID;
+    slots[slot].volume = 1.0f;
     wav64_play(audio, slot);
-    Log::info("Playing audio on channel %d", slot);
-    return Audio::Handle{0,0};
+    Log::info("Playing audio on channel %d, uuid: %d", slot, nextUUID);
+    return Audio::Handle{(uint16_t)slot, nextUUID};
   }
 
   void stopAll() {
@@ -75,5 +82,16 @@ namespace P64::AudioManager
 }
 
 void P64::Audio::Handle::stop() {
+  auto entry = &slots[slot];
+  if(entry->uuid != uuid)return;
+  mixer_ch_stop(slot);
+  uuid = 0;
+}
 
+void P64::Audio::Handle::setVolume(float volume)
+{
+  auto entry = &slots[slot];
+  if(entry->uuid != uuid)return;
+  entry->volume = volume;
+  mixer_ch_set_vol(slot, volume, volume);
 }

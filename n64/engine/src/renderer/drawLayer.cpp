@@ -19,7 +19,7 @@ namespace
   };
 
   constexpr uint32_t LAYER_BUFFER_COUNT = 3;
-  constexpr uint32_t LAYER_BUFFER_WORDS = 1024;
+  constexpr uint32_t LAYER_BUFFER_WORDS = 2048;
   std::vector<std::array<Layer, LAYER_BUFFER_COUNT>> layers{};
 
   constinit volatile uint32_t* layerMem{nullptr};

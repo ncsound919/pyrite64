@@ -10,6 +10,7 @@
 #include "scene/components/camera.h"
 #include "scene/components/collMesh.h"
 #include "scene/components/collBody.h"
+#include "scene/components/audio2d.h"
 
 #define SET_COMP(name) \
   [Comp::name::ID] = { \
@@ -44,5 +45,6 @@ namespace P64
     SET_COMP(Camera),
     SET_COMP_NO_DRAW(CollMesh),
     SET_COMP_NO_DRAW(CollBody),
+    SET_COMP_NO_DRAW(Audio2D),
   };
 }

@@ -34,6 +34,7 @@ namespace P64::Audio
        * Note that stopping will make the handle invalid.
        */
       void stop();
+      void setVolume(float volume);
   };
 }
 

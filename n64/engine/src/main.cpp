@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <libdragon.h>
 #include <t3d/t3d.h>
 
@@ -54,6 +55,9 @@ int main()
   P64::AudioManager::init();
 
 	P64::Log::info("Starting Game");
+
+  bool res = std::filesystem::exists("rom:/p64/conf"); // to init usb
+  P64::Log::info("File: %d\n", res);
 
 	{
 	  auto tmp = (ProjectConf*)asset_load("rom:/p64/conf", nullptr);

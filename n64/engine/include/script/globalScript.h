@@ -25,6 +25,8 @@ namespace P64::GlobalScript
     SCENE_PRE_DRAW_3D,
     SCENE_POST_DRAW_3D,
 
+    SCENE_DRAW_2D,
+
     _size_,
   };
 

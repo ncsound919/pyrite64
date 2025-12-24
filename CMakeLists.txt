@@ -177,6 +177,7 @@ add_executable(p64editor src/main.cpp
         src/build/tools/bci.cpp
         src/build/tools/bci.h
         src/build/audioBuilder.cpp
+        src/project/component/types/compAudio2d.cpp
 )
 
 target_include_directories(p64editor PRIVATE

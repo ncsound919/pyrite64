@@ -71,6 +71,7 @@ namespace Project::Component
   MAKE_COMP(Camera)
   MAKE_COMP(CollMesh)
   MAKE_COMP(CollBody)
+  MAKE_COMP(Audio2D)
 
   constexpr std::array TABLE{
     CompInfo{
@@ -139,6 +140,17 @@ namespace Project::Component
       .funcSerialize = CollBody::serialize,
       .funcDeserialize = CollBody::deserialize,
       .funcBuild = CollBody::build
+    },
+    CompInfo{
+      .id = 6,
+      .icon = ICON_MDI_MUSIC " ",
+      .name = "Audio (2D)",
+      .funcInit = Audio2D::init,
+      .funcDraw = Audio2D::draw,
+      .funcDrawPost3D = Audio2D::draw3D,
+      .funcSerialize = Audio2D::serialize,
+      .funcDeserialize = Audio2D::deserialize,
+      .funcBuild = Audio2D::build
     },
   };
 }

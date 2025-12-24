@@ -73,4 +73,6 @@ add_executable(n64_engine
         engine/src/renderer/bigtex/memory.cpp
         engine/src/renderer/bigtex/fbCpuDraw.cpp
         engine/src/renderer/bigtex/rspBigTex.cpp
+        engine/include/scene/components/audio2d.h
+        engine/src/scene/components/audio2d.cpp
 )

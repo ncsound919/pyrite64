@@ -85,6 +85,7 @@ void Build::buildGlobalScripts(Project::Project &project, SceneCtx &sceneCtx)
   enumMap["onSceneUpdate"]     = "SCENE_UPDATE";
   enumMap["onScenePreDraw3D"]  = "SCENE_PRE_DRAW_3D";
   enumMap["onScenePostDraw3D"] = "SCENE_POST_DRAW_3D";
+  enumMap["onSceneDraw2D"] = "SCENE_DRAW_2D";
 
   std::unordered_map<std::string, std::string> nameMap{};
   for (auto &e : enumMap) {

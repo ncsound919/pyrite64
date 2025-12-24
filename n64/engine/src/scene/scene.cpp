@@ -190,6 +190,8 @@ void P64::Scene::draw([[maybe_unused]] float deltaTime)
     heap_stats_t heap{};
     sys_get_heap_stats(&heap);
     Debug::printf(16, 16+9, "%.4f\n", heap.used / 1024.0);
+
+    GlobalScript::callHooks(GlobalScript::HookType::SCENE_DRAW_2D);
   DrawLayer::useDefault();
 
   renderPipeline->draw();

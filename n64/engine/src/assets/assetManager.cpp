@@ -51,10 +51,14 @@ namespace
 
   namespace AssetType = P64::Assets::Type;
 
+  wav64_t* wav64Load(const char* path) {
+    return wav64_load(path, nullptr);
+  }
+
   AssetHandler assetHandler[] = {
     [AssetType::UNKNOWN]  = {nullptr,                  nullptr                 },
     [AssetType::IMAGE]    = {(LoadFunc)sprite_load,    (FreeFunc)sprite_free   },
-    [AssetType::AUDIO]    = {nullptr,                  nullptr                 },
+    [AssetType::AUDIO]    = {(LoadFunc)wav64Load,      (FreeFunc)wav64_close   },
     [AssetType::FONT]     = {(LoadFunc)rdpq_font_load, (FreeFunc)rdpq_font_free},
     [AssetType::MODEL_3D] = {(LoadFunc)t3d_model_load, (FreeFunc)t3d_model_free},
     [AssetType::CODE]     = {nullptr,                  nullptr                 },

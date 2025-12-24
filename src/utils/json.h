@@ -74,19 +74,20 @@ namespace Utils::JSON
   }
 
   template<typename T>
-  inline float readFloat(const simdjson::simdjson_result<T> &el, const std::string &key) {
+  inline float readFloat(const simdjson::simdjson_result<T> &el, const std::string &key, float def = 0.0f) {
     auto val = el[key];
     if (val.error() != simdjson::SUCCESS) {
-      return 0.0f;
+      return def;
     }
     auto f = val.get_double();
     if (f.error() != simdjson::SUCCESS) {
-      return 0.0f;
+      return def;
     }
     return (float)(*f);
   }
 
-  inline bool readBool(const simdjson::simdjson_result<simdjson::dom::element> &el, const std::string &key, bool defValue = false) {
+  template<typename T>
+  inline bool readBool(const simdjson::simdjson_result<T> &el, const std::string &key, bool defValue = false) {
     auto val = el[key];
     if (val.error() != simdjson::SUCCESS) {
       return defValue;
