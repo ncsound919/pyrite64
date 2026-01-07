@@ -86,4 +86,6 @@ add_executable(n64_engine
         engine/src/collision/meshLoader.cpp
         engine/src/lib/math.cpp
         engine/src/debug/overlay.cpp
+        engine/include/collision/attach.h
+        engine/src/collision/attach.cpp
 )

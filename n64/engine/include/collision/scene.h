@@ -9,7 +9,7 @@
 #include <set>
 #include <vector>
 
-namespace Coll
+namespace P64::Coll
 {
   class Scene {
     private:

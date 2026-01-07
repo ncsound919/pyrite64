@@ -139,6 +139,10 @@ P64::Object* P64::Scene::loadObject(uint8_t* &objFile, std::function<void(Object
   );*/
 
   objFile = ptrIn + 4;
+
+  objects.push_back(obj);
+  idLookup[obj->id] = obj;
+
   return obj;
 }
 
@@ -156,7 +160,7 @@ void P64::Scene::loadScene() {
     // now process all other objects
     auto objFile = objFileStart;
     for(uint32_t i=0; i<conf.objectCount; ++i) {
-      objects.push_back(loadObject(objFile));
+      loadObject(objFile);
     }
 
     free(objFileStart);

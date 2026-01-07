@@ -7,7 +7,7 @@
 #include "mesh.h"
 #include "shapes.h"
 
-namespace Coll
+namespace P64::Coll
 {
   bool sphereVsSphere(BCS &collA, BCS &collB);
   bool sphereVsBox(BCS &sphere, BCS &box);

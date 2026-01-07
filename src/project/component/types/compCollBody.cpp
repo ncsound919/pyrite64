@@ -71,12 +71,12 @@ namespace Project::Component::CollBody
     ctx.fileObj.write(data.halfExtend.resolve(obj.propOverrides));
     ctx.fileObj.write(data.offset.resolve(obj.propOverrides));
 
-    uint8_t flags = data.type.resolve(obj.propOverrides) == TYPE_BOX ? Coll::BCSFlags::SHAPE_BOX : 0;
+    uint8_t flags = data.type.resolve(obj.propOverrides) == TYPE_BOX ? P64::Coll::BCSFlags::SHAPE_BOX : 0;
     if(data.isTrigger.resolve(obj.propOverrides)) {
-      flags |= Coll::BCSFlags::TRIGGER;
+      flags |= P64::Coll::BCSFlags::TRIGGER;
     }
     if(data.isFixed.resolve(obj.propOverrides)) {
-      flags |= Coll::BCSFlags::FIXED_XYZ;
+      flags |= P64::Coll::BCSFlags::FIXED_XYZ;
     }
 
     ctx.fileObj.write<uint8_t>(flags);

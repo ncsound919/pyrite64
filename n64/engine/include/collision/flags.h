@@ -5,7 +5,7 @@
 #pragma once
 #include <cstdint>
 
-namespace Coll
+namespace P64::Coll
 {
   namespace TriType {
     constexpr uint8_t FLOOR = 1 << 0;

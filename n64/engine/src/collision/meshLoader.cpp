@@ -12,7 +12,7 @@ namespace {
 
    static void debugDrawBVTreeNode(
     const int16_t *data, uint32_t basePtr,
-    const Coll::BVHNode *node, int level
+    const P64::Coll::BVHNode *node, int level
   ) {
     int dataCount = node->value & 0b1111;
     int offset = (int16_t)node->value >> 4;
@@ -34,14 +34,14 @@ namespace {
     }
   }
 
-  [[maybe_unused]] static void debugDrawBVTree(const Coll::BVH *bvh) {
+  [[maybe_unused]] static void debugDrawBVTree(const P64::Coll::BVH *bvh) {
     const int16_t *data = (int16_t*)&bvh->nodes[bvh->nodeCount]; // data starts right after nodes
     uint32_t basePtr = (uint32_t)(char*)bvh;
     debugDrawBVTreeNode(data, basePtr, bvh->nodes, 0);
   }
 }
 
-Coll::Mesh* Coll::Mesh::load(void* rawData)
+P64::Coll::Mesh* P64::Coll::Mesh::load(void* rawData)
 {
   Mesh* mesh = (Mesh*)rawData;
 

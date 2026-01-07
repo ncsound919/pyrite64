@@ -104,7 +104,7 @@ namespace {
 		return a + (lineDir * clamp(pointDist, 0.0f, length));
   }
 
-  Coll::CollInfo triVsSphere(const Coll::BCS &sphere, const Coll::Triangle &face)
+  P64::Coll::CollInfo triVsSphere(const P64::Coll::BCS &sphere, const P64::Coll::Triangle &face)
   {
     const auto &bcsPos = sphere.center;
 
@@ -169,7 +169,7 @@ namespace {
     return {.collCount = 0};
   }
 
-  Coll::CollInfo triVsBox(const Coll::BCS &box, const Coll::Triangle &face)
+  P64::Coll::CollInfo triVsBox(const P64::Coll::BCS &box, const P64::Coll::Triangle &face)
   {
     // move triangle to origin
     const auto v0 = *face.v[0] - box.center;
@@ -245,7 +245,7 @@ namespace {
     return {};
   }
 
-  bool pointVsTriangle2D(const fm_vec2_t &p, const Coll::Triangle2D &tri)
+  bool pointVsTriangle2D(const fm_vec2_t &p, const P64::Coll::Triangle2D &tri)
   {
     bool b0 = fm_vec2_dot(fm_vec2_t{p.v[0] - tri.v[0].v[0], p.v[1] - tri.v[0].v[1]}, fm_vec2_t{tri.v[0].v[1] - tri.v[1].v[1], tri.v[1].v[0] - tri.v[0].v[0]}) > 0.0f;
     bool b1 = fm_vec2_dot(fm_vec2_t{p.v[0] - tri.v[1].v[0], p.v[1] - tri.v[1].v[1]}, fm_vec2_t{tri.v[1].v[1] - tri.v[2].v[1], tri.v[2].v[0] - tri.v[1].v[0]}) > 0.0f;
@@ -260,15 +260,15 @@ namespace {
   }
 }
 
-Coll::CollInfo Coll::Mesh::vsSphere(const Coll::BCS &sphere, const Coll::Triangle &triangle) const {
+P64::Coll::CollInfo P64::Coll::Mesh::vsSphere(const P64::Coll::BCS &sphere, const P64::Coll::Triangle &triangle) const {
   return triVsSphere(sphere, triangle);
 }
 
-Coll::CollInfo Coll::Mesh::vsBox(const Coll::BCS &box, const Coll::Triangle &triangle) const {
+P64::Coll::CollInfo P64::Coll::Mesh::vsBox(const P64::Coll::BCS &box, const P64::Coll::Triangle &triangle) const {
   return triVsBox(box, triangle);
 }
 
-Coll::RaycastRes Coll::Mesh::vsFloorRay(const fm_vec3_t &rayStart, const Coll::Triangle &face) const
+Coll::RaycastRes Coll::Mesh::vsFloorRay(const fm_vec3_t &rayStart, const P64::Coll::Triangle &face) const
 {
     const auto &vert0 = *face.v[0];
     const auto &vert1 = *face.v[1];
@@ -276,7 +276,7 @@ Coll::RaycastRes Coll::Mesh::vsFloorRay(const fm_vec3_t &rayStart, const Coll::T
 
     // raycast the floor, this means we can reduce this to a 2D point vs. triangle test
     // by projecting it down (aka ignoring height)
-    auto tri2D = Coll::Triangle2D{{
+    auto tri2D = Triangle2D{{
       {vert0.x, vert0.z},
       {vert1.x, vert1.z},
       {vert2.x, vert2.z}

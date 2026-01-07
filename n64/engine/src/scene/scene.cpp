@@ -50,7 +50,6 @@ P64::Scene::Scene(uint16_t sceneId, Scene** ref)
     default: assertf(false, "Unknown render pipeline %d", (int)conf.pipeline);
   }
 
-
   state.screenSize[0] = conf.screenWidth;
   state.screenSize[1] = conf.screenHeight;
 
@@ -103,7 +102,7 @@ void P64::Scene::update(float deltaTime)
   //debugf("cam %p: %d | %f\n", camMain, cameras.size(), (double)camMain->pos.z);
 
   for(auto data : objectsToAdd) {
-    auto newObj = loadObject((uint8_t*&)data.prefabData, [&](Object &obj)
+    loadObject((uint8_t*&)data.prefabData, [&](Object &obj)
     {
       obj.id = data.objectId;
       obj.pos = data.pos;
@@ -111,7 +110,6 @@ void P64::Scene::update(float deltaTime)
       obj.rot = data.rot;
       obj.flags = ObjectFlags::ACTIVE;
     });
-    objects.push_back(newObj);
   }
   objectsToAdd.clear();
 
@@ -141,6 +139,7 @@ void P64::Scene::update(float deltaTime)
 
   for(auto &obj : pendingObjDelete)
   {
+    idLookup[obj->id] = nullptr;
     std::erase(objects, obj);
     obj->~Object();
     free(obj);
@@ -235,7 +234,7 @@ void P64::Scene::draw([[maybe_unused]] float deltaTime)
 void P64::Scene::onObjectCollision(const Coll::CollEvent &event)
 {
   auto objA = event.self->obj;
-  auto objB = event.other->obj;
+  auto objB = event.otherBCS ? event.otherBCS->obj : event.otherMesh->object;
   if(!objA || !objB)return;
 
   auto compRefsA = objA->getCompRefs();
@@ -248,9 +247,11 @@ void P64::Scene::onObjectCollision(const Coll::CollEvent &event)
     }
   }
 
+  if(!event.otherBCS)return;
+
   Coll::CollEvent eventOther{
-    .self = event.other,
-    .other = event.self,
+    .self = event.otherBCS,
+    .otherBCS = event.self,
   };
 
   auto compRefsB = objB->getCompRefs();
@@ -288,7 +289,13 @@ void P64::Scene::removeObject(Object &obj)
 
 P64::Object* P64::Scene::getObjectById(uint16_t objId) const
 {
-  // @TODO: optimize!
+  // the first IDs get a direct lookup, under the assumption most
+  // scenes keep object count in a reasonable amount
+  if(objId < idLookup.size()) {
+    return idLookup[objId];
+  }
+
+  // otherwise fallback to a linear scan
   for(auto obj : objects) {
     if (objId == obj->id) {
       return obj;

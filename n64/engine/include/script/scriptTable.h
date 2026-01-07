@@ -6,14 +6,14 @@
 #include <libdragon.h>
 
 namespace P64 { class Object; struct ObjectEvent; }
-namespace Coll { struct CollEvent; }
+namespace P64::Coll { struct CollEvent; }
 
 namespace P64::Script
 {
   typedef void(*FuncObjInit)(Object&, void*, bool isDelete);
   typedef void(*FuncObjDataDelta)(Object&, void*, float);
   typedef void(*FuncObjDataEvent)(Object&, void*, const ObjectEvent&);
-  typedef void(*FuncObjDataColl)(Object&, void*, const Coll::CollEvent&);
+  typedef void(*FuncObjDataColl)(Object&, void*, const P64::Coll::CollEvent&);
 
   struct ScriptEntry
   {

@@ -6,7 +6,7 @@
 #include <vector>
 #include "shapes.h"
 
-namespace Coll
+namespace P64::Coll
 {
   constexpr int MAX_RESULT_COUNT = 32;
 

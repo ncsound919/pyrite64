@@ -78,6 +78,10 @@ namespace P64
       std::vector<Object*> objects{};
       std::vector<PrefabParams> objectsToAdd{};
 
+      // create a direct lookup table for the first few IDs
+      // most scene probably don't exceed that much anyway
+      std::array<Object*, 128> idLookup{};
+
       Coll::Scene collScene{};
       std::vector<Object*> pendingObjDelete{};
 

@@ -12,7 +12,7 @@ namespace P64
   class Object;
 }
 
-namespace Coll
+namespace P64::Coll
 {
   struct BVH;
 
@@ -43,6 +43,8 @@ namespace Coll
     fm_vec3_t invScale{};
     fm_quat_t invRot{};
 
+    fm_vec3_t intoLocalSpace(const fm_vec3_t &p) const;
+    fm_vec3_t outOfLocalSpace(const fm_vec3_t &p) const;
     void update();
   };
 }

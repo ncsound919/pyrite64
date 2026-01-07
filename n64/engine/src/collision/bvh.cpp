@@ -7,11 +7,11 @@
 
 namespace {
   const int16_t *ctxData;
-  const Coll::AABB *ctxAABB;
-  const Coll::IVec3 *ctxRayPos;
-  Coll::BVHResult *ctxRes;
+  const P64::Coll::AABB *ctxAABB;
+  const P64::Coll::IVec3 *ctxRayPos;
+  P64::Coll::BVHResult *ctxRes;
 
-  void queryNodeAABB(const Coll::BVHNode *node)
+  void queryNodeAABB(const P64::Coll::BVHNode *node)
   {
     if(!node->aabb.vsAABB(*ctxAABB))return;
 
@@ -25,12 +25,12 @@ namespace {
     }
 
     int offsetEnd = offset + dataCount;
-    while(offset < offsetEnd && ctxRes->count < Coll::MAX_RESULT_COUNT) {
+    while(offset < offsetEnd && ctxRes->count < P64::Coll::MAX_RESULT_COUNT) {
       ctxRes->triIndex[ctxRes->count++] = ctxData[offset++];
     }
   }
 
-  void queryNodeRaycastFloor(const Coll::BVHNode *node)
+  void queryNodeRaycastFloor(const P64::Coll::BVHNode *node)
   {
     if(!node->aabb.vs2DPointY(*ctxRayPos))return;
 
@@ -44,20 +44,20 @@ namespace {
     }
 
     int offsetEnd = offset + dataCount;
-    while(offset < offsetEnd && ctxRes->count < Coll::MAX_RESULT_COUNT) {
+    while(offset < offsetEnd && ctxRes->count < P64::Coll::MAX_RESULT_COUNT) {
       ctxRes->triIndex[ctxRes->count++] = ctxData[offset++];
     }
   }
 }
 
-void Coll::BVH::vsAABB(const Coll::AABB &aabb, BVHResult &res) const {
+void P64::Coll::BVH::vsAABB(const AABB &aabb, BVHResult &res) const {
   ctxData = (int16_t*)&nodes[nodeCount]; // data starts right after nodes;
   ctxAABB = &aabb;
   ctxRes = &res;
   queryNodeAABB(nodes);
 }
 
-void Coll::BVH::raycastFloor(const Coll::IVec3 &pos, Coll::BVHResult &res) const {
+void P64::Coll::BVH::raycastFloor(const IVec3 &pos, BVHResult &res) const {
   ctxData = (int16_t*)&nodes[nodeCount]; // data starts right after nodes;
   ctxRayPos = &pos;
   ctxRes = &res;

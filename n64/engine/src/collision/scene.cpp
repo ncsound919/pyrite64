@@ -11,11 +11,12 @@
 #include "lib/logger.h"
 #include "scene/sceneManager.h"
 
-namespace {
+namespace
+{
   constexpr float MIN_PENETRATION = 0.00004f;
   constexpr float FLOOR_ANGLE = 0.7f;
 
-  constexpr bool isFloor(const Coll::IVec3 &normal) {
+  constexpr bool isFloor(const P64::Coll::IVec3 &normal) {
     return normal.v[1] > (int16_t)(0x7FFF * FLOOR_ANGLE);
   }
   constexpr bool isFloor(const fm_vec3_t &normal) {
@@ -24,20 +25,9 @@ namespace {
   constexpr bool isFloor(float normY) {
     return normY > FLOOR_ANGLE;
   }
-
-  fm_vec3_t intoLocalSpace(const Coll::MeshInstance &inst, const fm_vec3_t &p) {
-    auto res = (p - inst.object->pos);
-    return inst.invRot * res * inst.invScale;
-  }
-  fm_vec3_t outOfLocalSpace(const Coll::MeshInstance &inst, const fm_vec3_t &p) {
-    /*if(inst.object->rot.w == 1.0f) {
-      return (p * inst.object->scale) + inst.object->pos;
-    }*/
-    return inst.object->rot * (p * inst.object->scale) + inst.object->pos;
-  }
 }
 
-Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float deltaTime) {
+P64::Coll::CollInfo P64::Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float deltaTime) {
   float len = fm_vec3_len(&velocity) * deltaTime;
 
   bool isBox = bcs.flags & BCSFlags::SHAPE_BOX;
@@ -47,8 +37,8 @@ Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float del
 
   auto velocityStep = velocity * (deltaTime / steps);
 
-  Coll::CollInfo res{};
-  Coll::BVHResult bvhRes{};
+  P64::Coll::CollInfo res{};
+  P64::Coll::BVHResult bvhRes{};
 
   for(int s=0; s<steps; ++s)
   {
@@ -59,7 +49,7 @@ Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float del
       auto &mesh = *meshInst->mesh;
 
       auto bcsLocal = bcs;
-      bcsLocal.center = intoLocalSpace(*meshInst, bcs.center);
+      bcsLocal.center = meshInst->intoLocalSpace(bcs.center);
       bcsLocal.halfExtend *= meshInst->invScale;
 
       auto ticksBvhStart = get_ticks();
@@ -67,7 +57,7 @@ Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float del
       mesh.bvh->vsBCS(bcsLocal, bvhRes);
 
       ticksBVH += get_ticks() - ticksBvhStart;
-      if(bvhRes.count >= Coll::MAX_RESULT_COUNT-1) {
+      if(bvhRes.count >= P64::Coll::MAX_RESULT_COUNT-1) {
         P64::Log::error("BVH result count exceeded max limit (%d)\n", bvhRes.count);
       }
 
@@ -99,6 +89,7 @@ Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float del
 
           ++res.collCount;
           res.penetration = res.penetration + collInfo.penetration;
+          res.meshInstance = meshInst;
 
           bool hitFloor = isFloor(collInfo.floorWallAngle.y);
           bcs.hitTriTypes |= hitFloor ? TriType::FLOOR : TriType::WALL;
@@ -113,14 +104,25 @@ Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float del
         }
       } // BVH res
 
-      bcs.center = outOfLocalSpace(*meshInst, bcsLocal.center);
+      bcs.center = meshInst->outOfLocalSpace(bcsLocal.center);
     } // meshes
   } // steps
 
   return res;
 }
 
-void Coll::MeshInstance::update()
+fm_vec3_t P64::Coll::MeshInstance::intoLocalSpace(const fm_vec3_t &p) const {
+  auto res = (p - object->pos);
+  return invRot * res * invScale;
+}
+fm_vec3_t P64::Coll::MeshInstance::outOfLocalSpace(const fm_vec3_t &p) const {
+  /*if(inst.object->rot.w == 1.0f) {
+    return (p * inst.object->scale) + inst.object->pos;
+  }*/
+  return object->rot * (p * object->scale) + object->pos;
+}
+
+void P64::Coll::MeshInstance::update()
 {
   invScale = fm_vec3_t{
     1.0f / object->scale.x,
@@ -130,7 +132,7 @@ void Coll::MeshInstance::update()
   fm_quat_inverse(&invRot, &object->rot);
 }
 
-void Coll::Scene::update(float deltaTime)
+void P64::Coll::Scene::update(float deltaTime)
 {
   uint64_t ticksStart = get_ticks();
   auto &gameScene = P64::SceneManager::getCurrent();
@@ -154,7 +156,8 @@ void Coll::Scene::update(float deltaTime)
 
     if(checkColl) {
       auto res = vsBCS(*bcsA, bcsA->velocity, deltaTime);
-      if(res.collCount) {
+      if(res.collCount)
+      {
         bool hitFloor = bcsA->hitTriTypes & TriType::FLOOR;
         if(bcsA->flags & BCSFlags::BOUNCY) {
           //fm_vec3_t norm;
@@ -168,6 +171,9 @@ void Coll::Scene::update(float deltaTime)
             bcsA->hitTriTypes &= ~TriType::FLOOR;
           }
         }
+
+        // @TODO: don't do if object has no callback
+        gameScene.onObjectCollision({bcsA, nullptr, res.meshInstance});
       }
     }
 
@@ -206,9 +212,9 @@ void Coll::Scene::update(float deltaTime)
   ticks += get_ticks() - ticksStart;
 }
 
-Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
+P64::Coll::RaycastRes P64::Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
   ++raycastCount;
-  Coll::RaycastRes res{
+  P64::Coll::RaycastRes res{
     .hitPos = fm_vec3_t{0.0f, 0.0f, 0.0f},
     .normal = fm_vec3_t{0.0f, 0.0f, 0.0f},
   };
@@ -217,9 +223,9 @@ Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
   for(auto meshInst : meshes)
   {
     auto &mesh = *meshInst->mesh;
-    auto posLocal = intoLocalSpace(*meshInst, pos);
+    auto posLocal = meshInst->intoLocalSpace(pos);
 
-    Coll::IVec3 posInt = {
+    P64::Coll::IVec3 posInt = {
       .v = {
         (int16_t)(posLocal.v[0]),
         (int16_t)(posLocal.v[1]),
@@ -227,7 +233,7 @@ Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
       }
     };
 
-    Coll::BVHResult bvhRes{};
+    P64::Coll::BVHResult bvhRes{};
     mesh.bvh->raycastFloor(posInt, bvhRes);
 
     for(int b=0; b<bvhRes.count; ++b) {
@@ -253,7 +259,7 @@ Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
       auto collInfo = mesh.vsFloorRay(posLocal, tri);
       if(collInfo.hasResult() && collInfo.hitPos.v[1] > highestFloor)
       {
-        res.hitPos = outOfLocalSpace(*meshInst, collInfo.hitPos);
+        res.hitPos = meshInst->outOfLocalSpace(collInfo.hitPos);
         res.normal = collInfo.normal;
         highestFloor = collInfo.hitPos.v[1];
       }
@@ -280,7 +286,7 @@ Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
   return res;
 }
 
-void Coll::Scene::debugDraw(bool showMesh, bool showSpheres)
+void P64::Coll::Scene::debugDraw(bool showMesh, bool showSpheres)
 {
   if(showMesh) {
     for(const auto &meshInst : meshes) {

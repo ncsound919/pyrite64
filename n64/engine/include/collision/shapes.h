@@ -13,8 +13,9 @@ namespace P64
   class Object;
 }
 
-namespace Coll
+namespace P64::Coll
 {
+  struct MeshInstance;
   struct BCS;
 
   struct IVec3 {
@@ -92,6 +93,7 @@ namespace Coll
   {
     fm_vec3_t penetration{};
     fm_vec3_t floorWallAngle{};
+    MeshInstance* meshInstance{};
     int collCount{};
   };
 
@@ -118,6 +120,7 @@ namespace Coll
   struct CollEvent
   {
     BCS* self{};
-    BCS* other{};
+    BCS* otherBCS{};
+    MeshInstance* otherMesh{};
   };
 }
