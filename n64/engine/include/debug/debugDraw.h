@@ -13,7 +13,7 @@ namespace Debug
   void drawLine(const fm_vec3_t &a, const fm_vec3_t &b, color_t color = {0xFF,0xFF,0xFF,0xFF});
   void drawSphere(const fm_vec3_t &center, float radius, color_t color = {0xFF,0xFF,0xFF,0xFF});
 
-  void draw(uint16_t *fb);
+  void draw(surface_t *fb);
 
   void printStart();
   float print(float x, float y, const char* str);

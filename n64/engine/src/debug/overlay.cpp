@@ -82,7 +82,7 @@ namespace {
   bool showMenuScene = false;
   bool showFrameTime = false;
 
-  bool isVisible = true;
+  bool isVisible = false;
   bool didInit = false;
 }
 
@@ -124,10 +124,11 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
     didInit = true;
   }
 
-  Debug::draw(static_cast<uint16_t*>(surf->buffer));
-
   auto &collScene = scene.getCollision();
-  uint64_t newTicksSelf = get_ticks();
+  uint64_t newTicksSelf = get_user_ticks();
+  MEMORY_BARRIER();
+
+  Debug::draw(surf);
 
   auto btn = joypad_get_buttons_pressed(JOYPAD_PORT_1);
   auto held = joypad_get_buttons_held(JOYPAD_PORT_1);
@@ -324,8 +325,8 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
   rdpq_set_fill_color({0xFF,0xFF,0xFF, 0xFF});
   rdpq_fill_rectangle(24 + barWidth - timeSelf, posY, 24 + barWidth, posY + barHeight);
 
-  newTicksSelf = get_ticks() - newTicksSelf;
-  if(newTicksSelf < TICKS_FROM_MS(2))
+  newTicksSelf = get_user_ticks() - newTicksSelf;
+  //if(newTicksSelf < TICKS_FROM_MS(2))
   {
     ticksSelf = newTicksSelf;
   }

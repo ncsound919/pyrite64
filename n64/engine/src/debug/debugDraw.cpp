@@ -20,10 +20,10 @@ namespace
 
   sprite_t *font{};
 
-  void debugDrawLine(uint16_t *fb, int px0, int py0, int px1, int py1, uint16_t color)
+  void debugDrawLine(surface_t *fb, int px0, int py0, int px1, int py1, uint16_t color)
   {
-    int width = 320;
-    int height = 240;
+    int width = fb->width;
+    int height = fb->height;
     if((px0 > width + 200) || (px1 > width + 200) ||
        (py0 > height + 200) || (py1 > height + 200)) {
       return;
@@ -37,13 +37,29 @@ namespace
     float xInc = dx / (float)steps;
     float yInc = dy / (float)steps;
 
-    for(int i=0; i<steps; ++i)
+    if(surface_get_format(fb) == FMT_RGBA16)
     {
-      if((i%3 != 0) && pos[1] >= 0 && pos[1] < height && pos[0] >= 0 && pos[0] < width) {
-        fb[(int)pos[1] * width + (int)pos[0]] = color;
+      uint16_t *buff = (uint16_t*)fb->buffer;
+      for(int i=0; i<steps; ++i)
+      {
+        if((i%3 != 0) && pos[1] >= 0 && pos[1] < height && pos[0] >= 0 && pos[0] < width) {
+          buff[(int)pos[1] * width + (int)pos[0]] = color;
+        }
+        pos[0] += xInc;
+        pos[1] += yInc;
       }
-      pos[0] += xInc;
-      pos[1] += yInc;
+    } else
+    {
+      uint32_t col32 = color_to_packed32(color_from_packed16(color));
+      uint32_t *buff = (uint32_t*)fb->buffer;
+      for(int i=0; i<steps; ++i)
+      {
+        if((i%3 != 0) && pos[1] >= 0 && pos[1] < height && pos[0] >= 0 && pos[0] < width) {
+          buff[(int)pos[1] * width + (int)pos[0]] = col32;
+        }
+        pos[0] += xInc;
+        pos[1] += yInc;
+      }
     }
   }
 }
@@ -90,10 +106,10 @@ void Debug::drawSphere(const fm_vec3_t &center, float radius, color_t color) {
   }
 }
 
-void Debug::draw(uint16_t *fb) {
+void Debug::draw(surface_t *fb) {
   if(lines.empty())return;
 
-  debugf("Drawing %d lines, %d rects\n", lines.size());
+  debugf("Drawing %d lines\n", lines.size());
   rspq_wait();
 
   auto vp = t3d_viewport_get();

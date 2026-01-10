@@ -6,6 +6,7 @@
 #include "../libdragon/rspq.h"
 #include <array>
 #include <vector>
+#include <t3d/t3d.h>
 #include <t3d/tpx.h>
 
 #include "lib/logger.h"
@@ -96,7 +97,25 @@ void P64::DrawLayer::draw(uint32_t layerIdx)
       setup.flags & Conf::FLAG_Z_WRITE
     );
     rdpq_mode_blender(setup.blender);
+
+    if(layerIdx == 0) {
+      rdpq_mode_fog(RDPQ_FOG_STANDARD);
+    } else {
+      rdpq_mode_fog(0);
+    }
+
   rdpq_mode_end();
+
+  if(layerIdx == 0)
+  {
+    t3d_fog_set_enabled(true);
+    t3d_fog_set_range(200, 450);
+    rdpq_set_fog_color({0xD3, 0xBB, 0x69, 0xFF});
+  } else
+  {
+    t3d_fog_set_enabled(false);
+  }
+
 
   if(layerIdx == 0)return;
   assertf(layerIdx-1 < layers.size(), "Invalid layer index %lu", layerIdx);
