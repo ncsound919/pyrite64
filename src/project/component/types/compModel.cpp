@@ -23,7 +23,8 @@ namespace Project::Component::Model
   struct Data
   {
     PROP_U64(model);
-    PROP_U32(layerIdx);
+    PROP_S32(layerIdx);
+    PROP_BOOL(culling);
 
     Renderer::Object obj3D{};
     Utils::AABB aabb{};
@@ -39,6 +40,7 @@ namespace Project::Component::Model
     return Utils::JSON::Builder{}
       .set(data.model)
       .set(data.layerIdx)
+      .set(data.culling)
       .toString();
   }
 
@@ -46,10 +48,11 @@ namespace Project::Component::Model
     auto data = std::make_shared<Data>();
     Utils::JSON::readProp(doc, data->layerIdx);
     Utils::JSON::readProp(doc, data->model);
+    Utils::JSON::readProp(doc, data->culling, false);
     return data;
   }
 
-  void build(Object&, Entry &entry, Build::SceneCtx &ctx)
+  void build(Object& obj, Entry &entry, Build::SceneCtx &ctx)
   {
     Data &data = *static_cast<Data*>(entry.data.get());
 
@@ -63,7 +66,7 @@ namespace Project::Component::Model
 
     ctx.fileObj.write<uint16_t>(id);
     ctx.fileObj.write<uint8_t>(data.layerIdx.value);
-    ctx.fileObj.write<uint8_t>(0);
+    ctx.fileObj.write<uint8_t>(data.culling.resolve(obj.propOverrides));
   }
 
   void draw(Object &obj, Entry &entry)
@@ -72,36 +75,30 @@ namespace Project::Component::Model
 
     auto &assets = ctx.project->getAssets();
     auto &modelList = assets.getTypeEntries(AssetManager::FileType::MODEL_3D);
+    auto scene = ctx.project->getScenes().getLoadedScene();
 
     if (ImTable::start("Comp", &obj)) {
       ImTable::add("Name", entry.name);
       ImTable::add("Model");
-      //ImGui::InputScalar("##UUID", ImGuiDataType_U64, &data.scriptUUID);
 
-      int idx = modelList.size();
-      for (int i=0; i<modelList.size(); ++i) {
-        if (modelList[i].uuid == data.model.value) {
-          idx = i;
-          break;
-        }
-      }
-
-      auto getter = [](void*, int idx) -> const char*
-      {
-        auto &scriptList = ctx.project->getAssets().getTypeEntries(AssetManager::FileType::MODEL_3D);
-        if (idx < 0 || idx >= scriptList.size())return "<Select Model>";
-        return scriptList[idx].name.c_str();
-      };
-
-      if (ImGui::Combo("##UUID", &idx, getter, nullptr, modelList.size()+1)) {
+      if (ImGui::VectorComboBox("Model", modelList, data.model.value)) {
         data.obj3D.removeMesh();
       }
 
-      ImTable::addProp("Draw-Layer", data.layerIdx);
+      std::vector<const char*> layerNames{};
+      for (auto &layer : scene->conf.layers3D) {
+        layerNames.push_back(layer.name.value.c_str());
+      }
+      ImTable::addComboBox("Draw-Layer", data.layerIdx.resolve(obj.propOverrides), layerNames);
 
-      if (idx < modelList.size()) {
-        const auto &script = modelList[idx];
-        data.model.value = script.uuid;
+      ImTable::addObjProp("Culling", data.culling);
+
+      if(data.culling.resolve(obj.propOverrides)) {
+        auto modelAsset = ctx.project->getAssets().getEntryByUUID(data.model.value);
+        if(modelAsset && !modelAsset->conf.gltfBVH) {
+          ImGui::SameLine();
+          ImGui::TextColored({1.0f, 0.5f, 0.5f, 1.0f}, "Warning: BVH not enabled!");
+        }
       }
 
       ImTable::end();

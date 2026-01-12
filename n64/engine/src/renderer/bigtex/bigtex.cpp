@@ -13,6 +13,7 @@
 
 void P64::Renderer::BigTex::patchT3DM(T3DModel &model)
 {
+  if(model.userBlock)return; // already processed
   auto pipeline = SceneManager::getCurrent().getRenderPipeline<RenderPipelineBigTex>();
   assert(pipeline);
 
@@ -21,6 +22,7 @@ void P64::Renderer::BigTex::patchT3DM(T3DModel &model)
   std::vector<T3DObject*> objects{};
   auto it = t3d_model_iter_create(&model, T3D_CHUNK_TYPE_OBJECT);
   while(t3d_model_iter_next(&it)) {
+    if(it.object->userBlock)return; // already processed
     objects.push_back(it.object);
   }
 
