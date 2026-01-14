@@ -40,7 +40,7 @@ namespace Project::Component::CollBody
     return data;
   }
 
-  std::string serialize(const Entry &entry) {
+  nlohmann::json serialize(const Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
     return Utils::JSON::Builder{}
       .set(data.halfExtend)
@@ -50,10 +50,10 @@ namespace Project::Component::CollBody
       .set(data.isFixed)
       .set(data.maskRead)
       .set(data.maskWrite)
-      .toString();
+      .doc;
   }
 
-  std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc) {
+  std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
     Utils::JSON::readProp(doc, data->halfExtend, glm::vec3{1.0f, 1.0f, 1.0f});
     Utils::JSON::readProp(doc, data->offset);

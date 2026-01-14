@@ -11,8 +11,6 @@
 #include "../utils/json.h"
 #include "../utils/jsonBuilder.h"
 
-using namespace simdjson;
-
 std::string Project::ProjectConf::serialize() const {
   Utils::JSON::Builder builder{};
   builder.set("name", name);
@@ -24,13 +22,13 @@ std::string Project::ProjectConf::serialize() const {
   return builder.toString();
 }
 
-void Project::Project::deserialize(const simdjson_result<dom::element> &doc) {
-  conf.name = Utils::JSON::readString(doc, "name");
-  conf.romName = Utils::JSON::readString(doc, "romName");
-  conf.pathEmu = Utils::JSON::readString(doc, "pathEmu");
-  conf.pathN64Inst = Utils::JSON::readString(doc, "pathN64Inst");
-  conf.sceneIdOnBoot = Utils::JSON::readU32(doc, "sceneIdOnBoot", 1);
-  conf.sceneIdOnReset = Utils::JSON::readU32(doc, "sceneIdOnReset", 1);
+void Project::Project::deserialize(const nlohmann::json &doc) {
+  conf.name = doc.value("name", "New Project");
+  conf.romName = doc.value("romName", "pyrite64");
+  conf.pathEmu = doc.value("pathEmu", "ares");
+  conf.pathN64Inst = doc.value("pathN64Inst", "");
+  conf.sceneIdOnBoot = doc.value("sceneIdOnBoot", 1);
+  conf.sceneIdOnReset = doc.value("sceneIdOnReset", 1);
 }
 
 Project::Project::Project(const std::string &path)

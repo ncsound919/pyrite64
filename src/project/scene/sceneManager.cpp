@@ -39,9 +39,10 @@ void Project::SceneManager::reload()
         if (doc.is_object())
         {
           auto docConf = doc["conf"];
-          auto scName = Utils::JSON::readString(docConf, "name");
+
+          auto scName = docConf.value("name", "");
           if(!scName.empty()) {
-            name = Utils::JSON::readString(docConf, "name");
+            name = scName;
           }
         }
       } catch(std::exception &e) {

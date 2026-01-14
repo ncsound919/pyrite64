@@ -36,7 +36,7 @@ void Editor::SceneInspector::draw() {
     scene->conf.fbWidth = 320;
     scene->conf.fbHeight = 240;
     scene->conf.fbFormat = 0;
-    scene->conf.clearColor = {0,0,0,0};
+    scene->conf.clearColor.value = {0,0,0,0};
     fbDisabled = true;
   }
 
@@ -50,8 +50,8 @@ void Editor::SceneInspector::draw() {
     constexpr const char* const FORMATS[] = {"RGBA16","RGBA32"};
     ImTable::addComboBox("Format", scene->conf.fbFormat, FORMATS, 2);
 
-    ImTable::addColor("Color", scene->conf.clearColor, false);
-    scene->conf.clearColor.a = 1.0f;
+    ImTable::addColor("Color", scene->conf.clearColor.value, false);
+    scene->conf.clearColor.value.a = 1.0f;
 
     ImTable::addProp("Clear Color", scene->conf.doClearColor);
 

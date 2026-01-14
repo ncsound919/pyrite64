@@ -277,7 +277,7 @@ void Editor::Viewport3D::draw()
     if(def.funcUpdate)def.funcUpdate(obj, *comp);
   });
 
-  fb.setClearColor(scene->conf.clearColor);
+  fb.setClearColor(scene->conf.clearColor.value);
 
   if(pickedObjID.hasResult())
   {

@@ -4,8 +4,6 @@
 */
 #include "scene.h"
 #include "object.h"
-#include <SDL3/SDL.h>
-#include "simdjson.h"
 #include "../../utils/json.h"
 #include "../../context.h"
 #include "../../utils/hash.h"
@@ -22,7 +20,7 @@ namespace
   constexpr float DEF_MODEL_SCALE = 1.0f;
 }
 
-std::string Project::SceneConf::serialize() const {
+nlohmann::json Project::SceneConf::serialize() const {
 
   auto writeLayer = [](Utils::JSON::Builder &b, const LayerConf &layer) {
     b.set(layer.name);
@@ -41,7 +39,7 @@ std::string Project::SceneConf::serialize() const {
     .set("fbWidth", fbWidth)
     .set("fbHeight", fbHeight)
     .set("fbFormat", fbFormat)
-    .set("clearColor", clearColor)
+    .set(clearColor)
     .set(doClearColor)
     .set(doClearDepth)
     .set(renderPipeline)
@@ -49,7 +47,7 @@ std::string Project::SceneConf::serialize() const {
     .setArray<LayerConf>("layersPtx", layersPtx, writeLayer)
     .setArray<LayerConf>("layers2D", layers2D, writeLayer);
 
-  return builder.toString();
+  return builder.doc;
 }
 
 Project::Scene::Scene(int id_, const std::string &projectPath)
@@ -67,8 +65,10 @@ Project::Scene::Scene(int id_, const std::string &projectPath)
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(std::string &objJson)
 {
+  auto json = nlohmann::json::parse(objJson, nullptr, false);
+
   auto obj = std::make_shared<Object>(root);
-  obj->deserialize(this, Utils::JSON::load(objJson));
+  obj->deserialize(this, json);
   obj->id = getFreeObjectId();
 
   auto oldName = obj->name;
@@ -219,13 +219,10 @@ uint32_t Project::Scene::createPrefabFromObject(uint32_t uuid)
 }
 
 std::string Project::Scene::serialize() {
-  auto json = conf.serialize();
-  auto graph = root.serialize();
-
-  return std::string{"{\n"}
-    + "\"conf\": " + json + ",\n"
-    + "\"graph\": " + graph + "\n"
-    + "}\n";
+  nlohmann::json doc{};
+  doc["conf"] = conf.serialize();
+  doc["graph"] = root.serialize();
+  return doc.dump(2);
 }
 
 void Project::Scene::resetLayers()
@@ -264,21 +261,21 @@ void Project::Scene::deserialize(const std::string &data)
 {
   if(data.empty())return;
 
-  auto doc = Utils::JSON::load(data);
+  auto doc = nlohmann::json::parse(data, nullptr, false);
   if (!doc.is_object())return;
 
-  auto docConf = doc["conf"];
-  if (docConf.is_object()) {
+  auto &docConf = doc["conf"];
+  {
     Utils::JSON::readProp(docConf, conf.name);
-    conf.fbWidth = Utils::JSON::readInt(docConf, "fbWidth");
-    conf.fbHeight = Utils::JSON::readInt(docConf, "fbHeight");
-    conf.fbFormat = Utils::JSON::readInt(docConf, "fbFormat");
-    conf.clearColor = Utils::JSON::readColor(docConf, "clearColor");
+    conf.fbWidth = docConf.value("fbWidth", 320);
+    conf.fbHeight = docConf.value("fbHeight", 240);
+    conf.fbFormat = docConf.value("fbFormat", 0);
+    Utils::JSON::readProp(docConf, conf.clearColor);
     Utils::JSON::readProp(docConf, conf.doClearColor);
     Utils::JSON::readProp(docConf, conf.doClearDepth);
     Utils::JSON::readProp(docConf, conf.renderPipeline);
 
-    auto readLayer = [](const simdjson::simdjson_result<simdjson::dom::object>& dom) {
+    auto readLayer = [](const nlohmann::json &dom) {
       LayerConf layer{};
       Utils::JSON::readProp(dom, layer.name);
       Utils::JSON::readProp(dom, layer.depthCompare, true);
@@ -294,10 +291,18 @@ void Project::Scene::deserialize(const std::string &data)
       return layer;
     };
 
-    conf.layers3D  = Utils::JSON::readArray<LayerConf>(docConf, "layers3D", readLayer);
-    conf.layersPtx = Utils::JSON::readArray<LayerConf>(docConf, "layersPtx", readLayer);
-    conf.layers2D  = Utils::JSON::readArray<LayerConf>(docConf, "layers2D", readLayer);
-
+    conf.layers3D.clear();
+    conf.layersPtx.clear();
+    conf.layers2D.clear();
+    for(auto &item : docConf["layers3D"]) {
+      conf.layers3D.push_back(readLayer(item));
+    }
+    for(auto &item : docConf["layersPtx"]) {
+      conf.layersPtx.push_back(readLayer(item));
+    }
+    for(auto &item : docConf["layers2D"]) {
+      conf.layers2D.push_back(readLayer(item));
+    }
     if(conf.layers3D.empty()) {
       resetLayers();
     }

@@ -30,7 +30,7 @@ namespace Project::Component::Constraint
     return data;
   }
 
-  std::string serialize(const Entry &entry) {
+  nlohmann::json serialize(const Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
     return Utils::JSON::Builder{}
       .set(data.type)
@@ -38,10 +38,10 @@ namespace Project::Component::Constraint
       .set(data.usePos)
       .set(data.useScale)
       .set(data.useRot)
-      .toString();
+      .doc;
   }
 
-  std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc) {
+  std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
     Utils::JSON::readProp(doc, data->type);
     Utils::JSON::readProp(doc, data->objectUUID);

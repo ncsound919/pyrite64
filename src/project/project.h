@@ -7,7 +7,6 @@
 
 #include "assetManager.h"
 #include "scene/sceneManager.h"
-#include "simdjson.h"
 
 namespace Project
 {
@@ -33,7 +32,7 @@ namespace Project
       AssetManager assets{this};
       SceneManager scenes{this};
 
-      void deserialize(const simdjson::simdjson_result<simdjson::dom::element> &doc);
+      void deserialize(const nlohmann::json &doc);
 
     public:
       ProjectConf conf{};

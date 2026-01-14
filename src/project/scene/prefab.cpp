@@ -4,7 +4,6 @@
 */
 #include "prefab.h"
 
-#include "simdjson.h"
 #include "../../utils/json.h"
 #include "../../utils/jsonBuilder.h"
 #include "../../context.h"
@@ -15,13 +14,13 @@ std::string Project::Prefab::serialize(const Object &obj) const
 {
   Builder builder{};
   builder.set(uuid);
-  builder.setRaw("obj", obj.serialize());
+  builder.doc["obj"] = obj.serialize();
   return builder.toString();
 }
 
 void Project::Prefab::deserialize(const std::string &str)
 {
-  auto doc = Utils::JSON::load(str);
+  auto doc = nlohmann::json::parse(str, nullptr, false);
   if(!doc.is_object())return;
   Utils::JSON::readProp(doc, uuid);
   obj.deserialize(nullptr, doc["obj"]);

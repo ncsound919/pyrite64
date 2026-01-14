@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#include "simdjson.h"
+#include "json.hpp"
 #include "../../utils/prop.h"
 #include "../component/components.h"
 #include "glm/vec3.hpp"
@@ -48,8 +48,8 @@ namespace Project
       void addComponent(int compID);
       void removeComponent(uint64_t uuid);
 
-      std::string serialize() const;
-      void deserialize(Scene *scene, const simdjson::simdjson_result<simdjson::dom::element> &doc);
+      nlohmann::json serialize() const;
+      void deserialize(Scene *scene, nlohmann::json &doc);
 
       bool isPrefabInstance() const {
         return uuidPrefab.value != 0;

@@ -46,7 +46,7 @@ namespace Project::Component::Camera
     return data;
   }
 
-  std::string serialize(const Entry &entry) {
+  nlohmann::json serialize(const Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
     Utils::JSON::Builder builder{};
 
@@ -55,16 +55,17 @@ namespace Project::Component::Camera
     builder.set("fov", data.fov);
     builder.set("near", data.near);
     builder.set("far", data.far);
-    return builder.toString();
+    return builder.doc;
   }
 
-  std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc) {
+  std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
-    data->vpOffset = Utils::JSON::readVec2(doc, "vpOffset");;
-    data->vpSize = Utils::JSON::readVec2(doc, "vpSize");;
-    data->fov = Utils::JSON::readFloat(doc, "fov");
-    data->near = Utils::JSON::readFloat(doc, "near");
-    data->far = Utils::JSON::readFloat(doc, "far");
+
+    data->vpOffset = glm::ivec2{doc["vpOffset"][0].get<int>(), doc["vpOffset"][1].get<int>()};
+    data->vpSize = glm::ivec2{doc["vpSize"][0].get<int>(), doc["vpSize"][1].get<int>()};
+    data->fov = doc["fov"].get<float>();
+    data->near = doc["near"].get<float>();
+    data->far = doc["far"].get<float>();
     return data;
   }
 

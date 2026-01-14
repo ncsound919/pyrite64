@@ -141,7 +141,7 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   ctx.fileScene.write<uint16_t>(sc->conf.fbWidth);
   ctx.fileScene.write<uint16_t>(sc->conf.fbHeight);
   ctx.fileScene.write(sceneFlags);
-  ctx.fileScene.writeRGBA(sc->conf.clearColor);
+  ctx.fileScene.writeRGBA(sc->conf.clearColor.value);
   ctx.fileScene.write(objCount);
 
   ctx.fileScene.write<uint8_t>(sc->conf.renderPipeline.value);

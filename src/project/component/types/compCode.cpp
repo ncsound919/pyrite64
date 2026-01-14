@@ -24,30 +24,27 @@ namespace Project::Component::Code
     return data;
   }
 
-  std::string serialize(const Entry &entry) {
+  nlohmann::json serialize(const Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
     Utils::JSON::Builder builder{};
     builder.set("script", data.scriptUUID);
 
-    Utils::JSON::Builder builderArgs{};
+    auto args = nlohmann::json::object();
     for (auto &arg : data.args) {
-      builderArgs.set(arg.second);
+      args[arg.second.name] = arg.second.value;
     }
-    builder.set("args", builderArgs);
+    builder.doc["args"] = args;
 
-    return builder.toString();
+    return builder.doc;
   }
 
-  std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc) {
+  std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
     data->scriptUUID = doc["script"].get<uint64_t>();
-    if (!doc["args"].error()) {
-      auto argsObj = doc["args"].get_object();
-      for (auto field : argsObj) {
-        data->args[std::string{field.key}] = PropString{
-          std::string{field.key},
-          std::string{field.value.get_string().value()}
-        };
+    if (doc.contains("args")) {
+      auto &argsObj = doc["args"];
+      for (auto& [key, val] : argsObj.items()) {
+        data->args[key] = PropString{key, val.get<std::string>()};
       }
     }
     return data;

@@ -17,10 +17,6 @@ add_compile_definitions(IMGUI_USE_WCHAR32)
 
 # Create your game executable target as usual
 add_executable(p64editor src/main.cpp
-        # JSON
-        vendored/simdjson/simdjson.cpp
-        vendored/simdjson/simdjson.h
-
         # SHA256
         vendored/SHA256/src/SHA256.cpp
         vendored/SHA256/include/SHA256.h
@@ -193,7 +189,6 @@ add_executable(p64editor src/main.cpp
 target_include_directories(p64editor PRIVATE
     vendored
     vendored/imgui
-    vendored/simdjson
     vendored/IconFontCppHeaders
     vendored/SHA256/include
     vendored/ImGuiTextSelect
@@ -206,7 +201,7 @@ target_include_directories(p64editor PRIVATE
     n64
 )
 
-target_compile_definitions(p64editor PRIVATE IMGUI_DEFINE_MATH_OPERATORS)
+target_compile_definitions(p64editor PRIVATE IMGUI_DEFINE_MATH_OPERATORS GLM_FORCE_QUAT_DATA_XYZW)
 
 set_target_properties(p64editor PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 

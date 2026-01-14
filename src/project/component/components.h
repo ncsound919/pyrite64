@@ -6,8 +6,8 @@
 #include <array>
 #include <memory>
 
+#include "json.hpp"
 #include "IconsMaterialDesignIcons.h"
-#include "simdjson.h"
 #include "../../build/sceneContext.h"
 
 namespace Editor
@@ -34,8 +34,8 @@ namespace Project::Component
   typedef void(*FuncCompDraw)(Object&, Entry &entry);
   typedef void(*FuncCompDraw3D)(Object&, Entry &entry, Editor::Viewport3D &vp, SDL_GPUCommandBuffer* cmdBuff, SDL_GPURenderPass* pass);
   typedef std::shared_ptr<void>(*FuncCompInit)(Object&);
-  typedef std::string(*FuncCompSerial)(const Entry &entry);
-  typedef std::shared_ptr<void>(*FuncCompDeserial)(simdjson::simdjson_result<simdjson::dom::object> &doc);
+  typedef nlohmann::json(*FuncCompSerial)(const Entry &entry);
+  typedef std::shared_ptr<void>(*FuncCompDeserial)(nlohmann::json &doc);
   typedef void(*FuncCompBuild)(Object&, Entry &entry, Build::SceneCtx &ctx);
 
   struct CompInfo
@@ -61,8 +61,8 @@ namespace Project::Component
       void update(Object& obj, Entry &entry); \
       void draw(Object& obj, Entry &entry); \
       void draw3D(Object&, Entry &entry, Editor::Viewport3D &vp, SDL_GPUCommandBuffer* cmdBuff, SDL_GPURenderPass* pass); \
-      std::string serialize(const Entry &entry); \
-      std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc); \
+      nlohmann::json serialize(const Entry &entry); \
+      std::shared_ptr<void> deserialize(nlohmann::json &doc); \
       void build(Object&, Entry &entry, Build::SceneCtx &ctx); \
     }
 

@@ -31,7 +31,7 @@ namespace Project
     int fbWidth{320};
     int fbHeight{240};
     int fbFormat{0};
-    glm::vec4 clearColor{};
+    PROP_VEC4(clearColor);
     PROP_BOOL(doClearColor);
     PROP_BOOL(doClearDepth);
     PROP_S32(renderPipeline);
@@ -40,7 +40,7 @@ namespace Project
     std::vector<LayerConf> layersPtx{};
     std::vector<LayerConf> layers2D{};
 
-    std::string serialize() const;
+    nlohmann::json serialize() const;
   };
 
   class Scene

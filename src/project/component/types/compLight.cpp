@@ -39,9 +39,9 @@ namespace Project::Component::Light
 {
   struct Data
   {
-    glm::vec4 color{};
-    int index{0};
-    int type{0};
+    PROP_VEC4(color);
+    PROP_S32(index);
+    PROP_S32(type);
   };
 
   std::shared_ptr<void> init(Object &obj) {
@@ -49,20 +49,20 @@ namespace Project::Component::Light
     return data;
   }
 
-  std::string serialize(const Entry &entry) {
+  nlohmann::json serialize(const Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
     Utils::JSON::Builder builder{};
-    builder.set("index", data.index);
-    builder.set("type", data.type);
-    builder.set("color", data.color);
-    return builder.toString();
+    builder.set(data.index);
+    builder.set(data.type);
+    builder.set(data.color);
+    return builder.doc;
   }
 
-  std::shared_ptr<void> deserialize(simdjson::simdjson_result<simdjson::dom::object> &doc) {
+  std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
-    data->index = Utils::JSON::readInt(doc, "index");
-    data->type = Utils::JSON::readInt(doc, "type");
-    data->color = Utils::JSON::readColor(doc, "color");
+    Utils::JSON::readProp(doc, data->index);
+    Utils::JSON::readProp(doc, data->type);
+    Utils::JSON::readProp(doc, data->color);
     return data;
   }
 
@@ -71,9 +71,9 @@ namespace Project::Component::Light
     Data &data = *static_cast<Data*>(entry.data.get());
     auto dir = rotToDir(obj) * 127.0f;
 
-    ctx.fileObj.writeRGBA(data.color);
-    ctx.fileObj.write<uint8_t>(data.index);
-    ctx.fileObj.write<uint8_t>(data.type);
+    ctx.fileObj.writeRGBA(data.color.resolve(obj.propOverrides));
+    ctx.fileObj.write<uint8_t>(data.index.resolve(obj.propOverrides));
+    ctx.fileObj.write<uint8_t>(data.type.resolve(obj.propOverrides));
 
     ctx.fileObj.write<int8_t>(dir.x);
     ctx.fileObj.write<int8_t>(dir.y);
@@ -84,10 +84,10 @@ namespace Project::Component::Light
   {
     Data &data = *static_cast<Data*>(entry.data.get());
     ctx.scene->addLight(Renderer::Light{
-      .color = data.color,
+      .color = data.color.resolve(obj.propOverrides),
       .pos = glm::vec4{obj.pos.resolve(obj.propOverrides), 0.0f},
       .dir = rotToDir(obj),
-      .type = data.type,
+      .type = data.type.resolve(obj.propOverrides),
     });
   }
 
@@ -97,9 +97,9 @@ namespace Project::Component::Light
     if (ImTable::start("Comp", &obj))
     {
       ImTable::add("Name", entry.name);
-      ImTable::addComboBox("Type", data.type, LIGHT_TYPES, LIGHT_TYPE_COUNT);
-      ImTable::add("Index", data.index);
-      ImTable::addColor("Color", data.color, true);
+      ImTable::addComboBox("Type", data.type.value, LIGHT_TYPES, LIGHT_TYPE_COUNT);
+      ImTable::add("Index", data.index.value);
+      ImTable::addColor("Color", data.color.value, true);
 
       ImTable::end();
     }
@@ -111,7 +111,7 @@ namespace Project::Component::Light
 
     constexpr float BOX_SIZE = 0.125f;
     constexpr float LINE_LEN = 0.7f;
-    glm::u8vec4 col = data.color * 255.0f;
+    glm::u8vec4 col = data.color.resolve(obj.propOverrides) * 255.0f;
 
     bool isSelected = ctx.selObjectUUID == obj.uuid;
 
@@ -119,13 +119,13 @@ namespace Project::Component::Light
     if(isSelected)
     {
       Utils::Mesh::addLineBox(*vp.getLines(), pos, {BOX_SIZE, BOX_SIZE, BOX_SIZE}, col);
-      if(data.type == LIGHT_TYPE_DIRECTIONAL)
+      if(data.type.resolve(obj.propOverrides) == LIGHT_TYPE_DIRECTIONAL)
       {
         glm::vec3 dir = rotToDir(obj);
         Utils::Mesh::addLine(*vp.getLines(), pos, pos + (dir * -LINE_LEN), col);
       }
     }
 
-    Utils::Mesh::addSprite(*vp.getSprites(), pos, obj.uuid, data.type, col);
+    Utils::Mesh::addSprite(*vp.getSprites(), pos, obj.uuid, data.type.resolve(obj.propOverrides), col);
   }
 }

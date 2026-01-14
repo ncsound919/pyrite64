@@ -14,7 +14,7 @@ using Builder = Utils::JSON::Builder;
 
 namespace
 {
-  Builder serializeObj(const Project::Object &obj)
+  nlohmann::json serializeObj(const Project::Object &obj)
   {
     Builder builder{};
     builder.set("id", obj.id);
@@ -30,30 +30,30 @@ namespace
       .set(obj.rot)
       .set(obj.scale);
 
-    Builder builderOver{};
+    auto ovr = nlohmann::json::object();
     for(auto &[key, val] : obj.propOverrides) {
-      builderOver.set(std::to_string(key), val.serialize());
+      ovr[std::to_string(key)] = val.serialize();
     }
-    builder.setRaw("propOverrides", builderOver.toString());
+    builder.doc["propOverrides"] = ovr;
 
-    std::vector<Builder> comps{};
+    nlohmann::json comps = nlohmann::json::array();
     for (auto &comp : obj.components) {
       auto &def = Project::Component::TABLE[comp.id];
-      comps.emplace_back();
-      Builder &builderCom = comps.back();
-      builderCom.set("id", comp.id);
-      builderCom.set("uuid", comp.uuid);
-      builderCom.set("name", comp.name);
-      builderCom.setRaw("data", def.funcSerialize(comp));
+      nlohmann::json c{};
+      c["id"] = comp.id;
+      c["uuid"] = comp.uuid;
+      c["name"] = comp.name;
+      c["data"] = def.funcSerialize(comp);
+      comps.push_back(c);
     }
-    builder.set("components", comps);
+    builder.doc["components"] = comps;
 
-    std::vector<Builder> children{};
+    nlohmann::json children = nlohmann::json::array();
     for (const auto &child : obj.children) {
       children.push_back(serializeObj(*child));
     }
     builder.set("children", children);
-    return builder;
+    return builder.doc;
   }
 }
 
@@ -80,20 +80,20 @@ void Project::Object::removeComponent(uint64_t uuid) {
   );
 }
 
-std::string Project::Object::serialize() const {
-  return serializeObj(*this).toString();
+nlohmann::json Project::Object::serialize() const {
+  return serializeObj(*this);
 }
 
-void Project::Object::deserialize(Scene *scene, const simdjson::simdjson_result<simdjson::dom::element>&doc)
+void Project::Object::deserialize(Scene *scene, nlohmann::json &doc)
 {
   if(!doc.is_object())return;
 
-  id = Utils::JSON::readInt(doc, "id");
-  name = Utils::JSON::readString(doc, "name");
-  uuid = Utils::JSON::readU64(doc, "uuid");
+  id   = doc["id"];
+  name = doc["name"];
+  uuid = doc["uuid"];
 
-  selectable = Utils::JSON::readBool(doc, "selectable", true);
-  enabled = Utils::JSON::readBool(doc, "enabled", true);
+  selectable = doc.value("selectable", true);
+  enabled = doc.value("enabled", true);
 
   Utils::JSON::readProp(doc, uuidPrefab);
   Utils::JSON::readProp(doc, pos);
@@ -101,47 +101,41 @@ void Project::Object::deserialize(Scene *scene, const simdjson::simdjson_result<
   Utils::JSON::readProp(doc, scale, {1,1,1});
 
   propOverrides.clear();
-  auto overrides = doc["propOverrides"];
-  if (overrides.error() == simdjson::SUCCESS)
+  if(doc.contains("propOverrides"))
   {
-    for(auto &[key, val] : overrides.get_object())
+    auto &overrides = doc["propOverrides"];
+    for (auto& [key, val] : overrides.items())
     {
       uint64_t keyInt = std::stoull(std::string(key));
       GenericValue v{};
-      v.deserialize(std::string{val.get_string().value()});
+      v.deserialize(val);
       propOverrides[keyInt] = v;
     }
   }
 
-
-  auto cmArray = doc["components"].get_array();
-  if (cmArray.error() == simdjson::SUCCESS) {
+  if(doc.contains("components")) {
+    auto &cmArray = doc["components"];
     int count = cmArray.size();
     for (int i=0; i<count; ++i) {
       auto compObj = cmArray.at(i);
-      if (compObj.error() != simdjson::SUCCESS)continue;
 
-      auto id = Utils::JSON::readInt(compObj, "id");
+      auto id = compObj["id"];
       if (id < 0 || id >= static_cast<int>(Component::TABLE.size()))continue;
       auto &def = Component::TABLE[id];
 
-      auto data = compObj["data"].get_object();
-
       components.push_back({
         .id = id,
-        .uuid = Utils::JSON::readU64(compObj, "uuid"),
-        .name = Utils::JSON::readString(compObj, "name"),
-        .data = def.funcDeserialize(data)
+        .uuid = compObj["uuid"],
+        .name = compObj["name"],
+        .data = def.funcDeserialize(compObj["data"])
       });
 
     }
   }
 
-  auto ch = doc["children"];
-  if (ch.error() != simdjson::SUCCESS)return;
-  auto chArray = ch.get_array();
-  if (chArray.error() != simdjson::SUCCESS)return;
+  if(!doc.contains("children"))return;
 
+  auto &chArray = doc["children"];
   size_t childCount = chArray.size();
 
   assert(scene || childCount == 0);
@@ -149,7 +143,7 @@ void Project::Object::deserialize(Scene *scene, const simdjson::simdjson_result<
 
   for (size_t i=0; i<childCount; ++i) {
     auto childObj = std::make_shared<Object>(*this);
-    childObj->deserialize(scene, chArray.at(i));
+    childObj->deserialize(scene, chArray[i]);
     scene->addObject(*this, childObj);
   }
 }

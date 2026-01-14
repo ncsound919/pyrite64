@@ -51,10 +51,10 @@ namespace
   {
     auto doc = Utils::JSON::loadFile(pathMeta);
     if (doc.is_object()) {
-      conf.format = Utils::JSON::readInt(doc, "format");
-      conf.baseScale = Utils::JSON::readInt(doc, "baseScale");
-      conf.compression = (Project::ComprTypes)Utils::JSON::readInt(doc, "compression");
-      conf.gltfBVH = Utils::JSON::readBool(doc, "gltfBVH");
+      conf.format = doc["format"];
+      conf.baseScale = doc["baseScale"];
+      conf.compression = (Project::ComprTypes)doc.value<int>("compression", 0);
+      conf.gltfBVH = doc["gltfBVH"];
       Utils::JSON::readProp(doc, conf.gltfCollision);
       Utils::JSON::readProp(doc, conf.wavForceMono);
       Utils::JSON::readProp(doc, conf.wavResampleRate);
@@ -62,7 +62,7 @@ namespace
       Utils::JSON::readProp(doc, conf.fontId);
       Utils::JSON::readProp(doc, conf.fontCharset);
 
-      conf.exclude = Utils::JSON::readBool(doc, "exclude");
+      conf.exclude = doc["exclude"];
     }
   }
 }
