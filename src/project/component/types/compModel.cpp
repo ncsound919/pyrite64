@@ -14,6 +14,7 @@
 #include "../../../renderer/scene.h"
 #include "../../../utils/meshGen.h"
 #include "../../../shader/defines.h"
+#include "../shared/material.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/matrix_decompose.hpp"
@@ -25,6 +26,7 @@ namespace Project::Component::Model
     PROP_U64(model);
     PROP_S32(layerIdx);
     PROP_BOOL(culling);
+    Shared::Material material{};
 
     Renderer::Object obj3D{};
     Utils::AABB aabb{};
@@ -41,6 +43,10 @@ namespace Project::Component::Model
       .set(data.model)
       .set(data.layerIdx)
       .set(data.culling)
+      /*.set(data.matSetDepthRead)
+      .set(data.matDepthRead)
+      .set(data.matSetDepthWrite)
+      .set(data.matDepthWrite)*/
       .toString();
   }
 
@@ -49,6 +55,10 @@ namespace Project::Component::Model
     Utils::JSON::readProp(doc, data->layerIdx);
     Utils::JSON::readProp(doc, data->model);
     Utils::JSON::readProp(doc, data->culling, false);
+    /*Utils::JSON::readProp(doc, data->matSetDepthRead, false);
+    Utils::JSON::readProp(doc, data->matDepthRead, false);
+    Utils::JSON::readProp(doc, data->matSetDepthWrite, false);
+    Utils::JSON::readProp(doc, data->matDepthWrite, false);*/
     return data;
   }
 
@@ -102,6 +112,36 @@ namespace Project::Component::Model
       }
 
       ImTable::end();
+
+      // disable background
+      ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+      ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+      ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+
+      if(ImGui::CollapsingHeader("Material Settings", ImGuiTreeNodeFlags_DefaultOpen))
+      {
+
+      }
+
+      ImGui::PopStyleColor(3);
+
+
+
+
+
+      /*if(data.matOverride.resolve(obj.propOverrides))
+      {
+        auto asset = ctx.project->getAssets().getEntryByUUID(data.model.value);
+        if(asset)
+        {
+          for(const auto &model : asset->t3dmData.models)
+          {
+            ImGui::Text("Model: %s", model.name.c_str());
+          }
+        }
+      }*/
+
+
     }
   }
 

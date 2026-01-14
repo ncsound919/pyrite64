@@ -85,15 +85,15 @@ void Editor::Scene::draw()
     ImGui::DockBuilderFinish(dockSpaceID);
   }
 
-  ImGui::Begin("Node-Editor");
-  nodeEditor.draw();
-  ImGui::End();
-
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));
   ImGui::Begin("3D-Viewport");
     viewport3d.draw();
   ImGui::End();
   ImGui::PopStyleVar(1);
+
+  ImGui::Begin("Node-Editor");
+  nodeEditor.draw();
+  ImGui::End();
 
   ImGui::Begin("Object");
     objectInspector.draw();

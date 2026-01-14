@@ -187,6 +187,7 @@ add_executable(p64editor src/main.cpp
         src/project/component/types/compConstraint.cpp
         src/project/component/types/compCulling.cpp
         src/editor/pages/parts/nodeEditor.cpp
+        src/project/component/shared/material.h
 )
 
 target_include_directories(p64editor PRIVATE
