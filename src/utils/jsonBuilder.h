@@ -30,6 +30,11 @@ namespace Utils::JSON
         return *this;
       }
 
+      Builder& set(const std::string &key, const nlohmann::json &json) {
+        doc[key] = json;
+        return *this;
+      }
+
       void set(const std::string &key, const glm::ivec2 &vec) {
         doc[key] = { vec.x, vec.y };
       }

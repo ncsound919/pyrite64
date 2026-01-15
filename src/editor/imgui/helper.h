@@ -13,6 +13,7 @@
 #include "glm/vec3.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <functional>
 
 namespace TPL
 {
@@ -82,10 +83,10 @@ namespace ImTable
     const std::string &getName() const { return name; }
   };
 
-  inline bool start(const char *name, Project::Object *nextObj = nullptr)
+  inline bool start(const char *name, Project::Object *nextObj = nullptr, int width = 2)
   {
     obj = nullptr;
-    if (!ImGui::BeginTable(name, 2))return false;
+    if (!ImGui::BeginTable(name, width))return false;
     obj = nextObj;
     ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
     ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch);
@@ -187,6 +188,8 @@ namespace ImTable
       return ImGui::InputScalar("##", ImGuiDataType_U8, value);
     } else if constexpr (std::is_same_v<T, glm::vec3>) {
       return ImGui::InputFloat3("##", glm::value_ptr(*value));
+    } else if constexpr (std::is_same_v<T, glm::vec4>) {
+      return ImGui::ColorEdit4("##", glm::value_ptr(*value), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
     } else if constexpr (std::is_same_v<T, glm::quat>) {
       return ImGui::InputFloat4("##", glm::value_ptr(*value));
     } else if constexpr (std::is_same_v<T, std::string>) {
@@ -223,12 +226,38 @@ namespace ImTable
   template<typename T>
   bool addObjProp(
     const std::string &name,
-    Property<T> &prop
+    Property<T> &prop,
+    std::function<bool(T*)> editFunc,
+    PropBool *propState
   )
   {
     if(!obj)return false;
     bool res{};
-    ImTable::add(name);
+
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::AlignTextToFramePadding();
+
+    if(propState)
+    {
+      ImGui::PushFont(nullptr, 18.0f);
+
+      if(ImGui::IconButton(
+        propState->value
+        ? ICON_MDI_CHECKBOX_MARKED_CIRCLE
+        : ICON_MDI_CHECKBOX_BLANK_CIRCLE_OUTLINE,
+        {24,24},
+        ImVec4{1,1,1,1}
+      )) {
+        propState->value = !propState->value;
+      }
+      ImGui::PopFont();
+      ImGui::SameLine();
+    }
+
+    ImGui::Text("%s", name.c_str());
+    ImGui::TableSetColumnIndex(1);
+
     ImGui::PushID(&prop);
 
     bool isOverride{true};
@@ -237,7 +266,11 @@ namespace ImTable
     if(obj->isPrefabInstance() && !obj->isPrefabEdit) {
       val = &prop.resolve(obj->propOverrides, &isOverride);
     }
-    if(!isOverride)ImGui::BeginDisabled();
+
+    bool isDisabled = !isOverride;
+    if(propState && !propState->value)isDisabled = true;
+
+    if(isDisabled)ImGui::BeginDisabled();
 
     if(obj && obj->isPrefabInstance() && !obj->isPrefabEdit)
     {
@@ -257,12 +290,24 @@ namespace ImTable
       ImGui::SameLine();
     }
 
-    res = typedInput<T>(val);
+    res = editFunc(val);
 
-    if(!isOverride)ImGui::EndDisabled();
+    if(isDisabled)ImGui::EndDisabled();
 
     ImGui::PopID();
     return res;
+  }
+
+  template<typename T>
+  bool addObjProp(
+    const std::string &name,
+    Property<T> &prop,
+    PropBool *propState = nullptr
+  )
+  {
+    return addObjProp<T>(name, prop, [](T *val) -> bool {
+      return typedInput<T>(val);
+    }, propState);
   }
 
   inline void addColor(const std::string &name, glm::vec4 &color, bool withAlpha = true) {

@@ -8,6 +8,7 @@
 #include "assets/assetManager.h"
 #include "lib/matrixManager.h"
 #include "renderer/drawLayer.h"
+#include "renderer/material.h"
 #include "scene/object.h"
 #include "script/scriptTable.h"
 
@@ -22,6 +23,7 @@ namespace P64::Comp
 
     T3DModel *model{};
     RingMat4FP matFP{};
+    Renderer::Material material{};
     uint8_t layerIdx{0};
     uint8_t flags{0};
 

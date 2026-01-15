@@ -43,10 +43,7 @@ namespace Project::Component::Model
       .set(data.model)
       .set(data.layerIdx)
       .set(data.culling)
-      /*.set(data.matSetDepthRead)
-      .set(data.matDepthRead)
-      .set(data.matSetDepthWrite)
-      .set(data.matDepthWrite)*/
+      .set("material", data.material.serialize())
       .doc;
   }
 
@@ -55,10 +52,10 @@ namespace Project::Component::Model
     Utils::JSON::readProp(doc, data->layerIdx);
     Utils::JSON::readProp(doc, data->model);
     Utils::JSON::readProp(doc, data->culling, false);
-    /*Utils::JSON::readProp(doc, data->matSetDepthRead, false);
-    Utils::JSON::readProp(doc, data->matDepthRead, false);
-    Utils::JSON::readProp(doc, data->matSetDepthWrite, false);
-    Utils::JSON::readProp(doc, data->matDepthWrite, false);*/
+
+    data->material.deserialize(
+      doc.value("material", nlohmann::json::object())
+    );
     return data;
   }
 
@@ -75,8 +72,9 @@ namespace Project::Component::Model
     }
 
     ctx.fileObj.write<uint16_t>(id);
-    ctx.fileObj.write<uint8_t>(data.layerIdx.value);
-    ctx.fileObj.write<uint8_t>(data.culling.resolve(obj.propOverrides));
+    ctx.fileObj.write<uint8_t>(data.layerIdx.resolve(obj));
+    ctx.fileObj.write<uint8_t>(data.culling.resolve(obj));
+    data.material.build(ctx.fileObj, obj);
   }
 
   void draw(Object &obj, Entry &entry)
@@ -117,30 +115,27 @@ namespace Project::Component::Model
       ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
       ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
       ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+      ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImGui::GetStyle().ItemSpacing + ImVec2{0, -4});
 
-      if(ImGui::CollapsingHeader("Material Settings", ImGuiTreeNodeFlags_DefaultOpen))
-      {
-
-      }
+      auto isOpen = ImGui::CollapsingHeader("Material Settings", ImGuiTreeNodeFlags_DefaultOpen);
 
       ImGui::PopStyleColor(3);
+      ImGui::PopStyleVar(1);
 
-
-
-
-
-      /*if(data.matOverride.resolve(obj.propOverrides))
+      if(isOpen && ImTable::start("Mat", &obj, 2))
       {
-        auto asset = ctx.project->getAssets().getEntryByUUID(data.model.value);
-        if(asset)
+        ImTable::addObjProp<int32_t>("Depth", data.material.depth, [](int32_t *depth)
         {
-          for(const auto &model : asset->t3dmData.models)
-          {
-            ImGui::Text("Model: %s", model.name.c_str());
-          }
-        }
-      }*/
+          std::array<const char*, 4> items = {"None", "Read", "Write", "Read+Write"};
+          return ImGui::Combo("##", depth, items.data(), items.size());
+        }, &data.material.setDepth);
 
+        ImTable::addObjProp("Prim-Color", data.material.prim, &data.material.setPrim);
+        ImTable::addObjProp("Env-Color", data.material.env, &data.material.setEnv);
+        ImTable::addObjProp("Lighting", data.material.lighting, &data.material.setLighting);
+
+        ImTable::end();
+      }
 
     }
   }

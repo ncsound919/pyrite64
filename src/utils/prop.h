@@ -111,6 +111,11 @@ struct Property
     if(isOverride)*isOverride = false;
     return value;
   }
+
+  template<typename OBJ>
+  T& resolve(OBJ &obj) {
+    return resolve(obj.propOverrides);
+  }
 };
 
 using PropU32 = Property<uint32_t>;

@@ -9,6 +9,7 @@
 #include <t3d/t3dmodel.h>
 
 #include "../../renderer/bigtex/bigtex.h"
+#include "renderer/material.h"
 #include "scene/scene.h"
 #include "scene/sceneManager.h"
 
@@ -19,6 +20,7 @@ namespace
     uint16_t assetIdx;
     uint8_t layer;
     uint8_t flags;
+    P64::Renderer::Material material;
   };
 
   void drawModel(T3DModel *model)
@@ -55,6 +57,7 @@ namespace P64::Comp
     assert(data->model != nullptr);
     data->layerIdx = initData->layer;
     data->flags = initData->flags;
+    data->material = initData->material;
 
     bool isBigTex = SceneManager::getCurrent().getConf().pipeline == SceneConf::Pipeline::BIG_TEX_256;
     bool separate = data->flags & FLAG_CULLING;
@@ -94,6 +97,8 @@ namespace P64::Comp
 
     if(data->layerIdx)DrawLayer::use3D(data->layerIdx);
 
+    data->material.begin();
+
     t3d_matrix_set(mat, true);
 
     if(data->flags & FLAG_CULLING)
@@ -116,6 +121,7 @@ namespace P64::Comp
       rspq_block_run(data->model->userBlock);
     }
 
+    data->material.end();
     if(data->layerIdx)DrawLayer::useDefault();
   }
 }

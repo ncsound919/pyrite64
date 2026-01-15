@@ -117,7 +117,7 @@ void* P64::AssetManager::getByIndex(uint32_t idx) {
     assertf(loader.fnLoad != nullptr, "No asset loader for type: %lu, %lu:%s", type, idx, entry.path);
     res = loader.fnLoad(entry.path);
     entry.setPointer(res);
-    debugf("Load Asset: %s | %lu\n", entry.path, type);
+    //debugf("Load Asset: %s | %lu\n", entry.path, type);
   } else {
     res = (void*)((uint32_t)res | 0x8000'0000);
   }
