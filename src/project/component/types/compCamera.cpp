@@ -34,11 +34,12 @@ namespace Project::Component::Camera
 {
   struct Data
   {
-    glm::ivec2 vpOffset{0,0};
-    glm::ivec2 vpSize{0,0};
-    float fov{glm::radians(75.0f)};
-    float near{0.1f};
-    float far{100.0f};
+    PROP_IVEC2(vpOffset);
+    PROP_IVEC2(vpSize);
+    PROP_FLOAT(fov);
+    PROP_FLOAT(near);
+    PROP_FLOAT(far);
+    PROP_FLOAT(aspect);
   };
 
   std::shared_ptr<void> init(Object &obj) {
@@ -50,33 +51,36 @@ namespace Project::Component::Camera
     Data &data = *static_cast<Data*>(entry.data.get());
     Utils::JSON::Builder builder{};
 
-    builder.set("vpOffset", data.vpOffset);
-    builder.set("vpSize", data.vpSize);
-    builder.set("fov", data.fov);
-    builder.set("near", data.near);
-    builder.set("far", data.far);
+    builder.set(data.vpOffset);
+    builder.set(data.vpSize);
+    builder.set(data.fov);
+    builder.set(data.near);
+    builder.set(data.far);
+    builder.set(data.aspect);
     return builder.doc;
   }
 
   std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
-
-    data->vpOffset = glm::ivec2{doc["vpOffset"][0].get<int>(), doc["vpOffset"][1].get<int>()};
-    data->vpSize = glm::ivec2{doc["vpSize"][0].get<int>(), doc["vpSize"][1].get<int>()};
-    data->fov = doc["fov"].get<float>();
-    data->near = doc["near"].get<float>();
-    data->far = doc["far"].get<float>();
+    Utils::JSON::readProp(doc, data->vpOffset);
+    Utils::JSON::readProp(doc, data->vpSize);
+    Utils::JSON::readProp(doc, data->fov, glm::radians(70.0f));
+    Utils::JSON::readProp(doc, data->near, 100.0f);
+    Utils::JSON::readProp(doc, data->far, 1000.0f);
+    Utils::JSON::readProp(doc, data->aspect, 0.0f);
     return data;
   }
 
   void build(Object& obj, Entry &entry, Build::SceneCtx &ctx)
   {
     Data &data = *static_cast<Data*>(entry.data.get());
-    ctx.fileObj.writeArray(glm::value_ptr(data.vpOffset), 2);
-    ctx.fileObj.writeArray(glm::value_ptr(data.vpSize), 2);
-    ctx.fileObj.write<float>(data.fov);
-    ctx.fileObj.write<float>(data.near);
-    ctx.fileObj.write<float>(data.far);
+
+    ctx.fileObj.writeArray(glm::value_ptr(data.vpOffset.resolve(obj)), 2);
+    ctx.fileObj.writeArray(glm::value_ptr(data.vpSize.resolve(obj)), 2);
+    ctx.fileObj.write<float>(glm::radians(data.fov.resolve(obj)));
+    ctx.fileObj.write<float>(data.near.resolve(obj));
+    ctx.fileObj.write<float>(data.far.resolve(obj));
+    ctx.fileObj.write<float>(data.aspect.resolve(obj));
   }
 
   void update(Object &obj, Entry &entry)
@@ -87,26 +91,27 @@ namespace Project::Component::Camera
   void draw(Object &obj, Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
 
-    if (ImTable::start("Comp"))
+    if (ImTable::start("Comp", &obj))
     {
       auto scene = ctx.project->getScenes().getLoadedScene();
       assert(scene);
-      if(data.vpSize.x == 0) data.vpSize.x = scene->conf.fbWidth;
-      if(data.vpSize.y == 0) data.vpSize.y = scene->conf.fbHeight;
+      /*auto &vpSize = data.vpSize.resolve(obj);
+      if(vpSize.x == 0) vpSize.x = scene->conf.fbWidth;
+      if(vpSize.y == 0) vpSize.y = scene->conf.fbHeight;*/
 
       ImTable::add("Name", entry.name);
-      ImTable::add("Offset");
-      ImGui::InputInt2("##vpOffset", &data.vpOffset.x);
-      ImTable::add("Size");
-      ImGui::InputInt2("##vpSize", &data.vpSize.x);
+      ImTable::addObjProp("Offset", data.vpOffset);
+      ImTable::addObjProp("Size", data.vpSize);
 
-      float fov = glm::degrees(data.fov);
-      ImTable::add("FOV", fov);
-      data.fov = glm::radians(fov);
+      //float fov = glm::degrees(data.fov.resolve(obj));
+      ImTable::addObjProp("FOV", data.fov);
+      //data.fov.resolve(obj) = glm::radians(fov);
 
 
-      ImTable::add("Near", data.near);
-      ImTable::add("Far", data.far);
+      ImTable::addObjProp("Near", data.near);
+      ImTable::addObjProp("Far", data.far);
+
+      ImTable::addObjProp("Aspect", data.aspect);
       //ImTable::addComboBox("Type", data.type, LIGHT_TYPES, LIGHT_TYPE_COUNT);
       ImTable::end();
     }

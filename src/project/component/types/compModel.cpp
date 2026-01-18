@@ -218,8 +218,19 @@ namespace Project::Component::Model
     bool isSelected = ctx.selObjectUUID == obj.uuid;
     if (isSelected)
     {
-      auto center = obj.pos.resolve(obj.propOverrides) + (data.aabb.getCenter() * obj.scale.resolve(obj.propOverrides) * (float)0xFFFF);
-      auto halfExt = data.aabb.getHalfExtend() * obj.scale.resolve(obj.propOverrides) * (float)0xFFFF;
+      Utils::AABB aabb = data.aabb;
+      if(!meshes.empty()) {
+        aabb.reset();
+        /*for(auto meshIdx : meshes) {
+          aabb.expandToFit(asset->mesh3D->getMeshAABB(meshIdx));
+        }*/
+        aabb.min = {0,0,0};
+        aabb.max = {0,0,0};
+      }
+
+
+      auto center = obj.pos.resolve(obj.propOverrides) + (aabb.getCenter() * obj.scale.resolve(obj.propOverrides) * (float)0xFFFF);
+      auto halfExt = aabb.getHalfExtend() * obj.scale.resolve(obj.propOverrides) * (float)0xFFFF;
 
       glm::u8vec4 aabbCol{0xAA,0xAA,0xAA,0xFF};
       if (isSelected) {

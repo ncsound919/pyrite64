@@ -32,7 +32,7 @@ P64::Coll::CollInfo P64::Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity,
 
   bool isBox = bcs.flags & BCSFlags::SHAPE_BOX;
 
-  int steps = (int)(len * 2);
+  int steps = (int)(len * 1.5f);
   steps = P64::Math::clamp(steps, 1, 8);
 
   auto velocityStep = velocity * (deltaTime / steps);
@@ -175,7 +175,7 @@ void P64::Coll::Scene::update(float deltaTime)
         }
 
         // @TODO: don't do if object has no callback
-        gameScene.onObjectCollision({bcsA, nullptr, res.meshInstance});
+        gameScene.onObjectCollision({bcsA, nullptr, nullptr, res.meshInstance});
       }
     }
 

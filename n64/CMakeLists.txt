@@ -93,4 +93,6 @@ add_executable(n64_engine
         engine/src/scene/components/culling.cpp
         engine/include/renderer/material.h
         engine/src/collision/shapes.cpp
+        engine/src/scene/components/constraint.cpp
+        engine/src/scene/components/camera.cpp
 )

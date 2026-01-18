@@ -16,6 +16,7 @@ std::string GenericValue::serialize() const
     case typeToId<  glm::quat>(): return pre + ST(valQuat.x) + "," + ST(valQuat.y) + "," + ST(valQuat.z) + "," + ST(valQuat.w);
     case typeToId<  glm::vec3>(): return pre + ST(valVec3.x) + "," + ST(valVec3.y) + "," + ST(valVec3.z);
     case typeToId<  glm::vec4>(): return pre + ST(valVec4.x) + "," + ST(valVec4.y) + "," + ST(valVec4.z) + "," + ST(valVec4.w);
+    case typeToId< glm::ivec2>(): return pre + ST(valIVec2.x) + "," + ST(valIVec2.y);
     case typeToId<   uint64_t>(): return pre + ST(valU64);
     case typeToId<   uint32_t>(): return pre + ST(valU32);
     case typeToId<    int64_t>(): return pre + ST(valS64);
@@ -65,6 +66,14 @@ void GenericValue::deserialize(const std::string &str)
       valVec4.y = std::stof(vals[1]);
       valVec4.z = std::stof(vals[2]);
       valVec4.w = std::stof(vals[3]);
+      break;
+    }
+    case typeToId< glm::ivec2>():
+    {
+      auto vals = Utils::splitString(strVal, ',');
+      if(vals.size() != 2)break;
+      valIVec2.x = std::stoi(vals[0]);
+      valIVec2.y = std::stoi(vals[1]);
       break;
     }
     case typeToId<   uint64_t>(): valU64 = std::stoull(strVal);          break;

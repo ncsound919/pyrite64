@@ -12,8 +12,9 @@ namespace P64::Comp
   {
     static constexpr uint32_t ID = 7;
 
-    static constexpr uint8_t TYPE_COPY = 0;
-    static constexpr uint8_t TYPE_OFFSET = 1;
+    static constexpr uint8_t TYPE_COPY_OBJ = 0;
+    static constexpr uint8_t TYPE_COPY_CAM = 2;
+    static constexpr uint8_t TYPE_REL_OFFSET = 1;
 
     static constexpr uint8_t FLAG_USE_POS = 1 << 0;
     static constexpr uint8_t FLAG_USE_SCALE = 1 << 1;
@@ -31,5 +32,6 @@ namespace P64::Comp
 
     static void initDelete([[maybe_unused]] Object& obj, Constraint* data, uint16_t* initData);
     static void update(Object& obj, Constraint* data, float deltaTime);
+    static void draw(Object& obj, Constraint* data, float deltaTime);
   };
 }

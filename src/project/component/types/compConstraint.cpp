@@ -14,6 +14,13 @@
 #include "../../../renderer/scene.h"
 #include "../../../utils/meshGen.h"
 
+namespace
+{
+  constexpr uint32_t TYPE_COPY_OBJ = 0;
+  constexpr uint32_t TYPE_COPY_CAM = 2;
+  constexpr uint32_t TYPE_REL_OFFSET = 1;
+}
+
 namespace Project::Component::Constraint
 {
   struct Data
@@ -75,9 +82,11 @@ namespace Project::Component::Constraint
       ImTable::add("Name", entry.name);
 
       std::vector<ImTable::ComboEntry> typeList{
-        {0, "Copy Transform"},
-        {1, "Relative Offset"},
+        {TYPE_COPY_OBJ, "Copy Trans. (Object)"},
+        {TYPE_COPY_CAM, "Copy Trans. (Camera)"},
+        {TYPE_REL_OFFSET, "Relative Offset"},
       };
+
       ImTable::addVecComboBox("Type", typeList, data.type.value);
 
       // @TODO: do this in scene itself
@@ -92,9 +101,12 @@ namespace Project::Component::Constraint
         });
       }
 
-      ImTable::addVecComboBox("Ref. Object", objList, data.objectUUID.value);
+      if(data.type.value != TYPE_COPY_CAM)
+      {
+        ImTable::addVecComboBox("Ref. Object", objList, data.objectUUID.value);
+      }
 
-      if(data.type.value == 0)
+      if(data.type.value == TYPE_COPY_OBJ || data.type.value == TYPE_COPY_CAM)
       {
         ImTable::addProp("Position", data.usePos);
         ImTable::addProp("Scale",    data.useScale);

@@ -110,7 +110,7 @@ namespace Project::Component::Light
     Data &data = *static_cast<Data*>(entry.data.get());
 
     constexpr float BOX_SIZE = 0.125f;
-    constexpr float LINE_LEN = 0.7f;
+    constexpr float LINE_LEN = 75.0f;
     glm::u8vec4 col = data.color.resolve(obj.propOverrides) * 255.0f;
 
     bool isSelected = ctx.selObjectUUID == obj.uuid;

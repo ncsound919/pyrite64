@@ -33,7 +33,7 @@ namespace P64::Comp
     data->type = initData->type;
     data->flags = initData->flags;
 
-    if(data->type == TYPE_OFFSET)
+    if(data->type == TYPE_REL_OFFSET)
     {
       auto &sc = obj.getScene();
       auto refObj = sc.getObjectById(data->refObjId);
@@ -51,6 +51,8 @@ namespace P64::Comp
 
   void Constraint::update(Object &obj, Constraint* data, float deltaTime)
   {
+    if(data->type == TYPE_COPY_CAM)return;
+
     auto &sc = obj.getScene();
     auto refObj = sc.getObjectById(data->refObjId);
     if(!refObj)return;
@@ -60,18 +62,28 @@ namespace P64::Comp
       (double)refObj->pos.x, (double)refObj->pos.y, (double)refObj->pos.z
     );*/
 
-    if(data->type == TYPE_COPY)
+    if(data->type == TYPE_COPY_OBJ)
     {
       if(data->flags & FLAG_USE_POS)obj.pos = refObj->pos;
       if(data->flags & FLAG_USE_SCALE)obj.scale = refObj->scale;
       if(data->flags & FLAG_USE_ROT)obj.rot = refObj->rot;
     }
 
-    if(data->type == TYPE_OFFSET)
+    if(data->type == TYPE_REL_OFFSET)
     {
       auto refPosWorld = refObj->outOfLocalSpace(data->localRefPos);
       obj.pos = refPosWorld;
       //if(data->flags & FLAG_USE_POS)obj.pos = refPosWorld;
     }
+  }
+
+  void Constraint::draw(Object& obj, Constraint* data, float deltaTime)
+  {
+    if(data->type != TYPE_COPY_CAM)return;
+
+    auto &sc = obj.getScene();
+    auto &cam = sc.getActiveCamera();
+
+    if(data->flags & FLAG_USE_POS)obj.pos = cam.getPos();
   }
 }

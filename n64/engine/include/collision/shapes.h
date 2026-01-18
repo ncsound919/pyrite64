@@ -121,8 +121,10 @@ namespace P64::Coll
 
   struct CollEvent
   {
-    BCS* self{};
+    BCS* selfBCS{};
     BCS* otherBCS{};
+
+    MeshInstance* selfMesh{};
     MeshInstance* otherMesh{};
   };
 }

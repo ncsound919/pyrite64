@@ -225,7 +225,6 @@ void Project::AssetManager::reload() {
       }
 
       entries[(int)type].push_back(entry);
-      entriesMap[entry.uuid] = {(int)type, static_cast<int>(entries[(int)type].size() - 1) };
     }
   }
 
@@ -283,7 +282,23 @@ void Project::AssetManager::reload() {
       };
 
       entries[(int)type].push_back(entry);
-      entriesMap[entry.uuid] = {(int)type, static_cast<int>(entries[(int)type].size() - 1) };
+    }
+  }
+
+  // sort by name
+  for (auto &typed : entries) {
+    std::sort(typed.begin(), typed.end(), [](const AssetManagerEntry &a, const AssetManagerEntry &b) {
+      return a.name < b.name;
+    });
+  }
+
+  for (auto &typed : entries)
+  {
+    int idx = 0;
+    for (auto &entry : typed)
+    {
+      entriesMap[entry.uuid] = {(int)entry.type, idx};
+      ++idx;
     }
   }
 }

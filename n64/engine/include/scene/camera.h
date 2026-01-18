@@ -20,6 +20,7 @@ namespace P64
     float fov{};
     float near{};
     float far{};
+    float aspectRatio{};
 
     uint8_t needsProjUpdate{false};
 

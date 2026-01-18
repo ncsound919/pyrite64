@@ -157,6 +157,7 @@ namespace Project::Component
     },
     CompInfo{
       .id = 7,
+      .prio = -2, // constraint must come before culling and any drawing
       .icon = ICON_MDI_LINK " ",
       .name = "Constraint",
       .funcInit = Constraint::init,

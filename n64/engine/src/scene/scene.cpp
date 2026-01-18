@@ -246,7 +246,7 @@ void P64::Scene::draw([[maybe_unused]] float deltaTime)
 
 void P64::Scene::onObjectCollision(const Coll::CollEvent &event)
 {
-  auto objA = event.self->obj;
+  auto objA = event.selfBCS ? event.selfBCS->obj : event.selfMesh->object;
   auto objB = event.otherBCS ? event.otherBCS->obj : event.otherMesh->object;
   if(!objA || !objB)return;
 
@@ -260,11 +260,13 @@ void P64::Scene::onObjectCollision(const Coll::CollEvent &event)
     }
   }
 
-  if(!event.otherBCS)return;
+  //if(!event.otherBCS)return;
 
   Coll::CollEvent eventOther{
-    .self = event.otherBCS,
-    .otherBCS = event.self,
+    .selfBCS = event.otherBCS,
+    .otherBCS = event.selfBCS,
+    .selfMesh = event.otherMesh,
+    .otherMesh = event.selfMesh,
   };
 
   auto compRefsB = objB->getCompRefs();
