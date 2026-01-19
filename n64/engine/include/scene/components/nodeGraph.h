@@ -22,6 +22,7 @@ namespace P64::Comp
     static void initDelete([[maybe_unused]] Object& obj, NodeGraph* data, uint16_t* initData);
 
     static void update(Object& obj, NodeGraph* data, float deltaTime) {
+      // @TODO: make sure that GCC optimizes away the wrapper function!
       data->inst.update(deltaTime);
     }
   };

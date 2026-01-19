@@ -7,6 +7,11 @@
 
 #include "assets/assetManager.h"
 
+namespace P64
+{
+  class Object;
+}
+
 namespace P64::NodeGraph
 {
   struct GraphDef;
@@ -21,6 +26,8 @@ namespace P64::NodeGraph
       uint16_t reg{};
 
     public:
+      Object *object{};
+
       Instance() = default;
 
       explicit Instance(uint16_t assetIdx) {

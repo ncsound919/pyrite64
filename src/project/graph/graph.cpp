@@ -7,6 +7,7 @@
 #include "json.hpp"
 
 #include "nodes/nodeWait.h"
+#include "nodes/nodeObjDel.h"
 
 typedef std::function<std::shared_ptr<Project::Graph::Node::Base>(ImFlow::ImNodeFlow &m, const ImVec2&)> NodeCreateFunc;
 #define TABLE_ENTRY(name) [](ImFlow::ImNodeFlow &m, const ImVec2& pos) { return m.addNode<Node::name>(pos); }
@@ -15,6 +16,7 @@ namespace Project::Graph
 {
   auto NODE_TABLE = std::to_array<NodeCreateFunc>({
     TABLE_ENTRY(Wait),
+    TABLE_ENTRY(ObjDel),
   });
 
   bool Graph::deserialize(const std::string &jsonData)

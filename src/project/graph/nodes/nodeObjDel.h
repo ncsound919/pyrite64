@@ -9,17 +9,17 @@
 
 namespace Project::Graph::Node
 {
-  class Wait : public Base
+  class ObjDel : public Base
   {
     private:
-      float time{};
+      uint16_t objectId{};
 
     public:
-      Wait()
+      ObjDel()
       {
         uuid = Utils::Hash::randomU64();
         outputCount = 1;
-        setTitle("Delay (sec.)");
+        setTitle("Delete Object");
         setStyle(std::make_shared<ImFlow::NodeStyle>(IM_COL32(90,191,93,255), ImColor(0,0,0,255), 3.5f));
 
         addIN<int>("", 0, ImFlow::ConnectionFilter::SameType());
@@ -28,19 +28,19 @@ namespace Project::Graph::Node
 
       void draw() override {
         ImGui::SetNextItemWidth(70.f);
-        ImGui::InputFloat("##Time", &time);
+        ImGui::InputScalar("##ObjectID", ImGuiDataType_U16, &objectId);
       }
 
       void serialize(nlohmann::json &j) override {
-        j["time"] = time;
+        j["objectId"] = objectId;
       }
 
       void deserialize(nlohmann::json &j) override {
-        time = j["time"];
+        objectId = j["objectId"];
       }
 
       void build(Utils::BinaryFile &f) override {
-        f.write<uint16_t>(time * 1000); // milliseconds
+        f.write<uint16_t>(objectId);
       }
   };
 }
