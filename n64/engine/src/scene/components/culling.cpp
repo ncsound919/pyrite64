@@ -27,7 +27,7 @@ void P64::Comp::Culling::initDelete(Object &obj, Culling* data, void* initData)
 void P64::Comp::Culling::draw(Object &obj, Culling* data, float deltaTime)
 {
   auto vp = t3d_viewport_get();
-  auto pos = data->offset + obj.pos;
+  auto pos = (data->offset * obj.scale) + obj.pos;
 
   if(data->type == 0)
   {

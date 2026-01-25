@@ -64,32 +64,35 @@ Project::Scene::Scene(int id_, const std::string &projectPath)
   root.uuid = Utils::Hash::sha256_64bit(root.name);
 }
 
-std::shared_ptr<Project::Object> Project::Scene::addObject(std::string &objJson)
+std::shared_ptr<Project::Object> Project::Scene::addObject(std::string &objJson, uint64_t parentUUID)
 {
-  auto json = nlohmann::json::parse(objJson, nullptr, false);
+  auto p = getObjectByUUID(parentUUID);
+  Object *parent = p ? p.get() : &root;
 
-  auto obj = std::make_shared<Object>(root);
+  auto json = nlohmann::json::parse(objJson, nullptr, false);
+  auto obj = std::make_shared<Object>(*parent);
   obj->deserialize(this, json);
-  return addObject(root, obj);
+  return addObject(*parent, obj, true);
 }
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
   auto child = std::make_shared<Object>(parent);
-  child->id = 0;
   child->name = "New Object";
-  child->uuid = 0;
   child->scale.value = {DEF_MODEL_SCALE, DEF_MODEL_SCALE, DEF_MODEL_SCALE};
   child->rot.value = glm::identity<glm::quat>();
-  return addObject(parent, child);
+  return addObject(parent, child, true);
 }
 
-std::shared_ptr<Project::Object> Project::Scene::addObject(Object&parent, std::shared_ptr<Object> obj) {
+std::shared_ptr<Project::Object> Project::Scene::addObject(Object&parent, std::shared_ptr<Object> obj, bool generateIDs) {
   parent.children.push_back(obj);
 
-  auto setChildUUIDs = [this](const std::shared_ptr<Object> &objChild, auto& setChildUIDsRef) -> void
+  auto setChildUUIDs = [this, generateIDs](const std::shared_ptr<Object> &objChild, auto& setChildUIDsRef) -> void
   {
-    objChild->id = getFreeObjectId();
-    objChild->uuid = Utils::Hash::randomU64();
+    if(generateIDs)
+    {
+      objChild->id = getFreeObjectId();
+      objChild->uuid = Utils::Hash::randomU64();
+    }
 
     objectsMap[objChild->uuid] = objChild;
     for(const auto& child : objChild->children) {

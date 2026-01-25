@@ -75,6 +75,7 @@ P64::Object* P64::Scene::loadObject(uint8_t* &objFile, std::function<void(Object
     auto compId = ptrIn[0];
     auto argSize = ptrIn[1] * 4;
 
+    assertf(compId < COMP_TABLE_SIZE, "Invalid component ID %d!", compId);
     const auto &compDef = COMP_TABLE[compId];
     assertf(compDef.getAllocSize != nullptr, "Component %d unknown!", compId);
     compDataSize += Math::alignUp(compDef.getAllocSize(ptrIn + 4), DATA_ALIGN);

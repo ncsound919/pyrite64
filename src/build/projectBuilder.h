@@ -28,7 +28,7 @@ namespace Build
   bool buildProject(const std::string &path);
 
   // individual parts
-  void writeObject(SceneCtx &ctx, Project::Object &obj, bool savePrefabItself = false);
+  uint32_t writeObject(SceneCtx &ctx, Project::Object &obj, bool savePrefabItself = false);
 
   bool buildT3DCollision(
     Project::Project &project, SceneCtx &sceneCtx,

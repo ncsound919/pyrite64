@@ -92,7 +92,7 @@ namespace Project::Component::Constraint
       // @TODO: do this in scene itself
       auto &map = ctx.project->getScenes().getLoadedScene()->objectsMap;
       std::vector<ImTable::ComboEntry> objList;
-      //objList.push_back({0, "<Active Camera>"});
+      objList.push_back({0, "<Parent>"});
 
       for (auto &[id, object] : map) {
         objList.push_back({

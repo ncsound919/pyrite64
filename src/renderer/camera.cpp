@@ -31,7 +31,26 @@ void Renderer::Camera::update() {
 void Renderer::Camera::apply(UniformGlobal &uniGlobal)
 {
   float aspect = screenSize.x / screenSize.y;
-  uniGlobal.projMat = glm::perspective(glm::radians(70.0f), aspect, 10.0f, 10'000.0f);
+  float near = 10.0f;
+  float far = 10'000.0f;
+  float fov = glm::radians(70.0f);
+
+  if(isOrtho)
+  {
+    uniGlobal.spriteSize = {10, 10};
+    float orthoSize = 310;
+    uniGlobal.projMat = glm::ortho(
+      -orthoSize * aspect,
+      orthoSize * aspect,
+      -orthoSize,
+      orthoSize,
+      -far, far
+    );
+  } else
+  {
+    uniGlobal.spriteSize = {7000, 7000};
+    uniGlobal.projMat = glm::perspective(fov, aspect, near, far);
+  }
 
   const glm::vec3 direction = glm::normalize(rot * WORLD_FORWARD);
   const glm::vec3 dynamicUp = glm::normalize(rot * WORLD_UP);

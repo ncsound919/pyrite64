@@ -13,6 +13,7 @@ layout(std140, set = 1, binding = 0) uniform UniformGlobal {
     mat4 projMat;
     mat4 cameraMat;
     vec2 screenSize;
+    vec2 spriteSize;
 };
 
 layout(std140, set = 1, binding = 1) uniform UniformObject {
@@ -29,34 +30,31 @@ void main()
   mat4 matMVP = projMat * cameraMat * modelMat;
   vec4 posScreen = matMVP * vec4(inPosition, 1.0);
 
-  float apspect = projMat[1][1] / projMat[0][0];
-  vec2 spriteSize = vec2(7000);
-
   vec2 stepPerPixel = vec2(2.0 / screenSize.x, 2.0 / screenSize.y);
-  spriteSize *= stepPerPixel;
+  vec2 localSpriteSize = spriteSize * stepPerPixel;
   vec2 uv = vec2(0.0);
 
   v_color = inColor;
   v_color.a = 1.0;
 
   if(corner == 0) {
-    posScreen.x -= spriteSize.x;
-    posScreen.y += spriteSize.y;
+    posScreen.x -= localSpriteSize.x;
+    posScreen.y += localSpriteSize.y;
     uv = vec2(0.0, 0.0);
   }
   else if(corner == 1) {
-    posScreen.x += spriteSize.x;
-    posScreen.y += spriteSize.y;
+    posScreen.x += localSpriteSize.x;
+    posScreen.y += localSpriteSize.y;
     uv = vec2(1.0, 0.0);
   }
   else if(corner == 3) {
-    posScreen.x -= spriteSize.x;
-    posScreen.y -= spriteSize.y;
+    posScreen.x -= localSpriteSize.x;
+    posScreen.y -= localSpriteSize.y;
     uv = vec2(0.0, 1.0);
   }
   else if(corner == 2) {
-    posScreen.x += spriteSize.x;
-    posScreen.y -= spriteSize.y;
+    posScreen.x += localSpriteSize.x;
+    posScreen.y -= localSpriteSize.y;
     uv = vec2(1.0, 1.0);
   }
 
@@ -65,6 +63,12 @@ void main()
   uv.x += spriteIdx * SPRITE_COUNT;
 
   gl_Position = posScreen;
+
+  /*if(spriteSize.x < 100) {
+    gl_Position.z = 0.5;
+  }*/
+
+
   v_uv = uv;
   v_objectID = inObjectId;
 }

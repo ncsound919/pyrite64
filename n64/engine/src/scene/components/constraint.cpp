@@ -29,7 +29,7 @@ namespace P64::Comp
     }
 
     new(data) Constraint();
-    data->refObjId = initData->refObjId;
+    data->refObjId = initData->refObjId == 0 ? obj.group : initData->refObjId;
     data->type = initData->type;
     data->flags = initData->flags;
 
@@ -83,7 +83,6 @@ namespace P64::Comp
 
     auto &sc = obj.getScene();
     auto &cam = sc.getActiveCamera();
-
     if(data->flags & FLAG_USE_POS)obj.pos = cam.getPos();
   }
 }

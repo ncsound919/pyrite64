@@ -233,16 +233,19 @@ int main(int argc, char** argv)
 
       auto obj = scene->getObjectByUUID(ctx.selObjectUUID);
       if(!obj)return false;
-      ctx.clipboard = obj->serialize().dump();
+
+      ctx.clipboard.data = obj->serialize().dump();
+      ctx.clipboard.refUUID = obj->parent ? obj->parent->uuid : 0;
 
       return true;
     });
 
     Editor::Actions::registerAction(Editor::Actions::Type::PASTE, [](const std::string&) {
-      if(!ctx.project || ctx.clipboard.empty())return false;
+      if(!ctx.project || ctx.clipboard.data.empty())return false;
       auto scene = ctx.project->getScenes().getLoadedScene();
       if(!scene)return false;
-      auto obj = scene->addObject(ctx.clipboard);
+
+      auto obj = scene->addObject(ctx.clipboard.data, ctx.clipboard.refUUID);
       ctx.selObjectUUID = obj->uuid;
       return true;
     });

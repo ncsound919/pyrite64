@@ -112,7 +112,7 @@ namespace P64
       void update(float deltaTime);
       void draw(float deltaTime);
 
-      [[nodiscard]] const SceneConf& getConf() const { return conf; }
+      [[nodiscard]] SceneConf& getConf() { return conf; }
       [[nodiscard]] uint16_t getId() const { return id; }
       [[nodiscard]] Camera* getCamera(uint32_t index = 0) { return cameras[index]; }
       [[nodiscard]] Camera& getActiveCamera() { return *camMain; }

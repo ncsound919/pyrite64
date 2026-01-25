@@ -336,6 +336,11 @@ void Editor::Viewport3D::draw()
 
   if(!ImGui::GetIO().WantTextInput)
   {
+    if(ImGui::IsKeyPressed(ImGuiKey_5))
+    {
+      camera.isOrtho = !camera.isOrtho;
+    }
+
     if (newMouseDown) {
       glm::vec3 moveDir = {0,0,0};
       if (ImGui::IsKeyDown(ImGuiKey_W))moveDir.z = -moveSpeed;
@@ -452,8 +457,6 @@ void Editor::Viewport3D::draw()
     glm::vec3 skew{0,0,0};
     glm::vec4 persp{0,0,0,1};
 
-    auto oldPos = obj->pos.resolve(obj->propOverrides);
-
     bool isOverride = false;
     gizmoMat = glm::recompose(
       obj->scale.resolve(obj->propOverrides, &isOverride),
@@ -466,6 +469,7 @@ void Editor::Viewport3D::draw()
       snap = glm::vec3(90.0f / 4.0f);
     }
     bool isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
+    bool isOnlySelf = ImGui::IsKeyDown(ImGuiKey_LeftShift);
 
     if(ImGuizmo::Manipulate(
       glm::value_ptr(uniGlobal.cameraMat),
@@ -478,6 +482,23 @@ void Editor::Viewport3D::draw()
     )) {
       if(!obj->uuidPrefab.value || isOverride)
       {
+        std::unordered_map<uint64_t, glm::vec3> relPosMap{};
+        if(!isOnlySelf)
+        {
+          auto oldGizmoMat = glm::recompose(
+            obj->scale.resolve(obj->propOverrides),
+            obj->rot.resolve(obj->propOverrides),
+            obj->pos.resolve(obj->propOverrides),
+            skew, persp);
+
+          for(auto& child : obj->children)
+          {
+            relPosMap[child->uuid] = glm::inverse(oldGizmoMat) * glm::vec4(
+              child->pos.resolve(child->propOverrides), 1.0f
+            );
+          }
+        }
+
         glm::decompose(
           gizmoMat,
           obj->scale.resolve(obj->propOverrides),
@@ -486,13 +507,13 @@ void Editor::Viewport3D::draw()
           skew, persp
         );
 
-        auto posDiff = obj->pos.resolve(obj->propOverrides) - oldPos;
-        if(posDiff != glm::vec3{0,0,0}) {
-          //printf("Moved obj %s by %f|%f|%f\n", obj->name.c_str(), posDiff.x, posDiff.y, posDiff.z);
-          // move all children too
+        if(!isOnlySelf)
+        {
           for(auto& child : obj->children)
           {
-            child->pos.resolve(child->propOverrides) += posDiff;
+            auto it = relPosMap.find(child->uuid);
+            if(it == relPosMap.end())continue;
+            child->pos.resolve(child->propOverrides) = gizmoMat * glm::vec4(it->second, 1.0f);
           }
         }
       }

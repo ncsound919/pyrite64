@@ -26,7 +26,7 @@ namespace
   constexpr uint32_t FLAG_SCR_32BIT = 1 << 2;
 }
 
-void Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool savePrefabItself)
+uint32_t Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool savePrefabItself)
 {
   auto srcObj = &obj;
   if(!savePrefabItself && obj.isPrefabInstance())
@@ -107,9 +107,11 @@ void Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool savePre
 
   ctx.fileObj.write<uint32_t>(0);
 
+  uint32_t count = 1;
   for (const auto &child : obj.children) {
-    writeObject(ctx, *child, savePrefabItself);
+    count += writeObject(ctx, *child, savePrefabItself);
   }
+  return count;
 }
 
 void Build::buildScene(Project::Project &project, const Project::SceneEntry &scene, SceneCtx &ctx)
@@ -123,7 +125,8 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   auto fsDataPath = fs::absolute(fs::path{project.getPath()} / "filesystem" / "p64");
 
   uint32_t sceneFlags = 0;
-  uint32_t objCount = sc->objectsMap.size();
+  uint32_t objCountExpected = sc->objectsMap.size();
+  uint32_t objCount = 0;
 
   if (sc->conf.doClearDepth.value)sceneFlags |= FLAG_CLR_DEPTH;
   if (sc->conf.doClearColor.value)sceneFlags |= FLAG_CLR_COLOR;
@@ -132,7 +135,7 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   ctx.fileObj = {};
   auto &rootObj = sc->getRootObject();
   for (const auto &child : rootObj.children) {
-    writeObject(ctx, *child, false);
+    objCount += writeObject(ctx, *child, false);
   }
 
   ctx.fileObj.writeToFile(fsDataPath / fileNameObj);

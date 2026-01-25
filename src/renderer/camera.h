@@ -27,6 +27,7 @@ namespace Renderer
       bool isRotating{false};
       glm::vec3 posBase{};
       bool isMoving{false};
+      bool isOrtho{false};
 
       Camera();
 

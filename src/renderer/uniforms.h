@@ -12,6 +12,7 @@ namespace Renderer
     glm::mat4 projMat{};
     glm::mat4 cameraMat{};
     glm::vec2 screenSize{};
+    glm::vec2 spriteSize{};
   };
 
   struct UniformN64Material

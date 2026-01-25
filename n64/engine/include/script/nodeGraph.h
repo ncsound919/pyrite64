@@ -16,18 +16,6 @@ namespace P64::NodeGraph
 {
   typedef void (*GraphFunc)(void* arg);
 
-  enum class NodeType : uint8_t
-  {
-    START = 0,
-    WAIT = 1,
-    OBJ_DEL = 2,
-    OBJ_EVENT = 3,
-    COMPARE = 4,
-    VALUE = 5,
-    REPEAT = 6,
-    FUNC = 7,
-  };
-
   struct GraphDef;
   struct NodeDef;
 
