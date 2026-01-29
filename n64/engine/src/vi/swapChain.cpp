@@ -174,7 +174,10 @@ void P64::VI::SwapChain::setDrawPass(SwapChain::RenderPassDrawTask task) {
 }
 
 void P64::VI::SwapChain::start() {
-  if(vblankEnabled)return;
+  if(vblankEnabled) {
+    vi_blank(true);
+    return;
+  }
 
   vi_write_begin();
     vi_show(&frameBuffers[fbIdxVI]);
