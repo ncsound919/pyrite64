@@ -93,6 +93,19 @@ namespace P64
         return nullptr;
       }
 
+      template<typename T>
+      [[nodiscard]] T* getComponent(uint32_t idx) const {
+        auto compRefs = getCompRefs();
+        for (uint32_t i=0; i<compCount; ++i) {
+          if(compRefs[i].type == T::ID) {
+            if (idx-- == 0) {
+              return (T*)((char*)this + compRefs[i].offset);
+            }
+          }
+        }
+        return nullptr;
+      }
+
       /**
        * Check if the object itself is enabled (not considering parent/group state).
        * @return true if enabled

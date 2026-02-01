@@ -271,7 +271,7 @@ namespace Project::Graph
       std::vector<uint64_t> filteredIngoingVals{};
       for(size_t i = 0; i < p64Node->valInputTypes.size(); ++i)
       {
-        if(p64Node->valInputTypes[i] == 1) {
+        if(p64Node->valInputTypes[i] == 1 && i < ingoingVals.size()){
           filteredIngoingVals.push_back(ingoingVals[i]);
         }
       }

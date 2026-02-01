@@ -87,16 +87,10 @@ uint32_t Build::writeObject(Build::SceneCtx &ctx, Project::Object &obj, bool sav
   }
 
   // sort by component prio
-  std::sort(compList.begin(), compList.end(),
+  std::stable_sort(compList.begin(), compList.end(),
     [](const Project::Component::Entry* a, const Project::Component::Entry* b) {
-      int prioA = 0;
-      int prioB = 0;
-      if (a->id >= 0 && a->id < Project::Component::TABLE.size()) {
-        prioA = Project::Component::TABLE[a->id].prio;
-      }
-      if (b->id >= 0 && b->id < Project::Component::TABLE.size()) {
-        prioB = Project::Component::TABLE[b->id].prio;
-      }
+      int prioA = Project::Component::TABLE[a->id].prio;
+      int prioB = Project::Component::TABLE[b->id].prio;
       return prioA < prioB;
     }
   );
