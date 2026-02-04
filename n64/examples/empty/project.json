@@ -1,0 +1,8 @@
+{
+  "name": "GJ25",
+  "pathEmu": "ares",
+  "pathN64Inst": "/opt/libdragon",
+  "romName": "gj25",
+  "sceneIdOnBoot": 1,
+  "sceneIdOnReset": 1
+}
