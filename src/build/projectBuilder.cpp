@@ -187,6 +187,10 @@ bool Build::buildProject(const std::string &path)
   }
   fileList.writeToFile(fsDataPath / "a");
 
+  // kep order stable to detect makefile changes
+  auto filesSorted = sceneCtx.files;
+  std::sort(filesSorted.begin(), filesSorted.end());
+
   // Makefile
   auto makefile = Utils::replaceAll(
     Utils::FS::loadTextFile("data/build/baseMakefile.mk"),
@@ -195,18 +199,18 @@ bool Build::buildProject(const std::string &path)
       {"{{ENGINE_PATH}}",       Utils::FS::toUnixPath(enginePath)},
       {"{{ROM_NAME}}",          project.conf.romName},
       {"{{PROJECT_NAME}}",      project.conf.name},
-      {"{{ASSET_LIST}}",        Utils::join(sceneCtx.files, " ")},
+      {"{{ASSET_LIST}}",        Utils::join(filesSorted, " ")},
       {"{{USER_CODE_DIRS}}",    userCodeRules},
       {"{{P64_SELF_PATH}}",     Utils::Proc::getSelfPath()},
       {"{{PROJECT_SELF_PATH}}", fs::absolute(path).string()},
     }
   );
 
-  auto oldMakefile = Utils::FS::loadTextFile(path + "/Makefile");
-  if (oldMakefile != makefile) {
+  auto mkPath = fs::absolute(path) / "Makefile";
+  auto oldMakefile = Utils::FS::loadTextFile(mkPath);
+  if (makefile != oldMakefile) {
     Utils::Logger::log("Makefile changed, clean build");
-
-    Utils::FS::saveTextFile(path + "/Makefile", makefile);
+    Utils::FS::saveTextFile(mkPath, makefile);
     sceneCtx.toolchain.runCmdSyncLogged("make -C \"" + path + "\" cleanCode");
   }
 
