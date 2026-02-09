@@ -121,8 +121,9 @@ namespace Project::Component::Code
           {
             const auto &assets = ctx.project->getAssets().getTypeEntries(FileType::IMAGE);
             uint64_t uuid = Utils::parseU64(data.args[field.name].value);
-            ImTable::addVecComboBox(name, assets, uuid);
-            data.args[field.name].value = std::to_string(uuid);
+            ImTable::addVecComboBox(name, assets, uuid, [&](uint64_t newId) {
+              data.args[field.name].value = std::to_string(newId);
+            });
           } else {
             ImTable::addObjProp(name, data.args[field.name]);
           }

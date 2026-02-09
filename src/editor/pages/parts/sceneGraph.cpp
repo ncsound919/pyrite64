@@ -9,6 +9,7 @@
 #include "../../imgui/helper.h"
 #include "IconsMaterialDesignIcons.h"
 #include "imgui_internal.h"
+#include "../../undoRedo.h"
 
 namespace
 {
@@ -171,7 +172,11 @@ namespace
       if (ImGui::BeginPopupContextItem("NodePopup"))
       {
         if (ImGui::MenuItem(ICON_MDI_CUBE_OUTLINE " Add Object")) {
-          ctx.selObjectUUID = scene.addObject(obj)->uuid;
+          Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Add Object");
+          auto added = scene.addObject(obj);
+          if (added) {
+            ctx.selObjectUUID = added->uuid;
+          }
         }
 
         if (obj.parent) {
@@ -211,6 +216,7 @@ void Editor::SceneGraph::draw()
 
   if(dragDropTask.sourceUUID && dragDropTask.targetUUID) {
     //printf("dragDropTarget %08X -> %08X (%d)\n", dragDropTask.sourceUUID, dragDropTask.targetUUID, dragDropTask.isInsert);
+    Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Move Object");
     scene->moveObject(
       dragDropTask.sourceUUID,
       dragDropTask.targetUUID,
@@ -219,6 +225,7 @@ void Editor::SceneGraph::draw()
   }
 
   if (deleteObj) {
+    Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Delete Object");
     scene->removeObject(*deleteObj);
     deleteObj = nullptr;
   }

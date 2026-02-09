@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "../actions.h"
+#include "../undoRedo.h"
 #include "../../context.h"
 
 #define IMVIEWGUIZMO_IMPLEMENTATION 1
@@ -192,6 +193,30 @@ void Editor::Scene::draw()
       ImGui::EndMenu();
     }
 
+    // Edit Menu with undo/redo functionality including description
+    if(ImGui::BeginMenu("Edit"))
+    {
+      auto& history = UndoRedo::getHistory();
+      
+      std::string undoText = ICON_MDI_UNDO " Undo";
+      if (history.canUndo()) {
+        undoText += " (" + history.getUndoDescription() + ")";
+      }
+      if(ImGui::MenuItem(undoText.c_str(), "Ctrl+Z", false, history.canUndo())) {
+        history.undo();
+      }
+      
+      std::string redoText = ICON_MDI_REDO " Redo";
+      if (history.canRedo()) {
+        redoText += " (" + history.getRedoDescription() + ")";
+      }
+      if(ImGui::MenuItem(redoText.c_str(), "Ctrl+Y", false, history.canRedo())) {
+        history.redo();
+      }
+      
+      ImGui::EndMenu();
+    }
+
     if(ImGui::BeginMenu("Build"))
     {
       if(ImGui::MenuItem(ICON_MDI_PLAY " Build"))Actions::call(Actions::Type::PROJECT_BUILD);
@@ -218,9 +243,23 @@ void Editor::Scene::draw()
     | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking
   );
 
-  int fps = (int)roundf(io.Framerate);
   ImGui::Text("%d FPS", (int)roundf(io.Framerate));
   ImGui::End();
+
+  // Global keyboard shortcuts
+  if (!ImGui::GetIO().WantTextInput) {
+    bool isCtrl = ImGui::GetIO().KeyCtrl;
+    
+    // Undo: Ctrl+Z
+    if (isCtrl && ImGui::IsKeyPressed(ImGuiKey_Z)) {
+      UndoRedo::getHistory().undo();
+    }
+    
+    // Redo: Ctrl+Y
+    if (isCtrl && ImGui::IsKeyPressed(ImGuiKey_Y)) {
+      UndoRedo::getHistory().redo();
+    }
+  }
 }
 
 void Editor::Scene::save()

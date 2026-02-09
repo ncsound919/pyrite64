@@ -8,6 +8,7 @@
 #include "../../imgui/helper.h"
 #include "../../../context.h"
 #include "../../../project/component/components.h"
+#include "../../undoRedo.h"
 
 Editor::ObjectInspector::ObjectInspector() {
 }
@@ -41,7 +42,7 @@ void Editor::ObjectInspector::draw() {
 
   //if (ImGui::CollapsingHeader("General", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    if (ImTable::start("General")) {
+    if (ImTable::start("General", obj.get())) {
       ImTable::add("Name", obj->name);
 
       int idProxy = obj->id;
@@ -84,17 +85,14 @@ void Editor::ObjectInspector::draw() {
 
   auto drawComp = [&](Project::Object* obj, Project::Component::Entry &comp, bool isInstance)
   {
-    auto oldPrefabUUID = obj->uuidPrefab.value;
-    if(isInstance) {
-      obj->uuidPrefab.value = 0;
-    }
+    ImTable::PrefabEditScope prefabScope(isInstance);
     ImGui::PushID(&comp);
 
     auto &def = Project::Component::TABLE[comp.id];
     auto name = std::string{def.icon} + "  " + comp.name;
     if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
     {
-      if(obj->uuidPrefab.value == 0 || obj->isPrefabEdit)
+      if(!ImTable::isPrefabLocked(obj))
       {
         if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
           ImGui::OpenPopup("CompCtx");
@@ -115,9 +113,6 @@ void Editor::ObjectInspector::draw() {
       def.funcDraw(*obj, comp);
     }
     ImGui::PopID();
-    if(isInstance) {
-      obj->uuidPrefab.value = oldPrefabUUID;
-    }
   };
 
   for (auto &comp : srcObj->components) {
@@ -132,10 +127,14 @@ void Editor::ObjectInspector::draw() {
   }
 
   if (compCopy) {
-    srcObj->addComponent(compCopy->id);
-    srcObj->components.back().name = compCopy->name + " Copy";
+    const int compCopyId = compCopy->id;
+    const std::string compCopyName = compCopy->name;
+    Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Duplicate Component");
+    srcObj->addComponent(compCopyId);
+    srcObj->components.back().name = compCopyName + " Copy";
   }
   if (compDelUUID) {
+    Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Delete Component");
     srcObj->removeComponent(compDelUUID);
   }
 
@@ -151,6 +150,7 @@ void Editor::ObjectInspector::draw() {
     for (auto &comp : Project::Component::TABLE) {
       auto name = std::string{comp.icon} + " " + comp.name;
       if(ImGui::MenuItem(name.c_str())) {
+        Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Add Component");
         srcObj->addComponent(comp.id);
       }
     }

@@ -108,6 +108,8 @@ add_executable(pyrite64 src/main.cpp
         src/project/project.cpp
         src/editor/actions.h
         src/editor/actions.cpp
+        src/editor/undoRedo.h
+        src/editor/undoRedo.cpp
         src/utils/json.h
         src/editor/imgui/theme.h
         src/editor/imgui/theme.cpp

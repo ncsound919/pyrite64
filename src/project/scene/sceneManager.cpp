@@ -8,6 +8,7 @@
 
 #include "../../utils/fs.h"
 #include "../../utils/json.h"
+#include "../../editor/undoRedo.h"
 
 namespace
 {
@@ -96,5 +97,7 @@ void Project::SceneManager::loadScene(int id) {
     loadedScene->save();
     delete loadedScene;
   }
+  //if we load a scene we should clear the undo history
+  Editor::UndoRedo::getHistory().clear();
   loadedScene = new Scene(id, project->getPath());
 }

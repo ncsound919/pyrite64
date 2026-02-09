@@ -16,6 +16,7 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "SDL3/SDL_gpu.h"
 #include "IconsMaterialDesignIcons.h"
+#include "../../undoRedo.h"
 
 namespace
 {
@@ -26,8 +27,6 @@ namespace
     ImGuizmo::OPERATION::ROTATE,
     ImGuizmo::OPERATION::SCALE
   };
-
-  constinit int gizmoOp{0};
 
   // A toggleable "connected" button (like in toolbars)
 bool ConnectedToggleButton(const char* text, bool active, bool first, bool last, ImVec2 size = ImVec2(20, 20))
@@ -343,6 +342,14 @@ void Editor::Viewport3D::draw()
       camera.isOrtho = !camera.isOrtho;
     }
 
+    // Handle object deletion when Delete is pressed while the viewport is focused and an object is selected
+    if (ImGui::IsWindowFocused() && obj && ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+      Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Delete Object");
+      scene->removeObject(*obj);
+      ctx.selObjectUUID = 0;
+      obj = nullptr;
+    }
+
     if (newMouseDown) {
       glm::vec3 moveDir = {0,0,0};
       if (ImGui::IsKeyDown(ImGuiKey_W))moveDir.z = -moveSpeed;
@@ -449,7 +456,11 @@ void Editor::Viewport3D::draw()
       uint64_t prefabUUID = *((uint64_t*)payload->Data);
       auto prefab = ctx.project->getAssets().getPrefabByUUID(prefabUUID);
       if(prefab) {
-        scene->addPrefabInstance(prefabUUID);
+        Editor::UndoRedo::SnapshotScope snapshot(Editor::UndoRedo::getHistory(), "Add Prefab");
+        auto added = scene->addPrefabInstance(prefabUUID);
+        if (added) {
+          ctx.selObjectUUID = added->uuid;
+        }
       }
     }
     ImGui::EndDragDropTarget();
@@ -463,6 +474,12 @@ void Editor::Viewport3D::draw()
   ImGuizmo::SetRect(currPos.x, currPos.y, currSize.x, currSize.y);
 
   if (obj) {
+    // If the transform gizmo is being used and we were not previously transforming, start a snapshot
+    if (ImGuizmo::IsUsing() && !gizmoTransformActive) {
+      gizmoTransformActive = true;
+      Editor::UndoRedo::getHistory().beginSnapshot("Transform Object");
+    }
+
     glm::mat4 gizmoMat{};
     glm::vec3 skew{0,0,0};
     glm::vec4 persp{0,0,0,1};
@@ -538,6 +555,12 @@ void Editor::Viewport3D::draw()
         }
       }
     }
+  }
+
+  // If the gizmo was active but is no longer being used, end the transform snapshot
+  if (gizmoTransformActive && (!ImGuizmo::IsUsing() || !obj)) {
+    Editor::UndoRedo::getHistory().endSnapshot();
+    gizmoTransformActive = false;
   }
 
   float camDist = glm::length(camera.posOffset);
