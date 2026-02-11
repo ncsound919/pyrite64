@@ -10,8 +10,14 @@ An N64 game-engine and editor using <a href="https://github.com/DragonMinded/lib
 <br/>
 
 <p align="center">
-<img src="./docs/img/editor00.png" width="550">
+  <img src="./docs/img/editor00.png" width="350">&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./docs/img/editor02.png" width="350">
 </p>
+<p align="center">
+  <img src="./docs/img/editor01.png" width="350">&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./docs/img/editor03.jpg" width="350">
+</p>
+
 
 > Note: This project does NOT use any proprietary N64 SDKs or libraries.
 
@@ -21,10 +27,16 @@ An N64 game-engine and editor using <a href="https://github.com/DragonMinded/lib
 > However, the process of setting up the editor and support for windows/macos is still WIP.<br>
 > Documentation is also missing.
 > 
-> Once that is done, a proper release will be made.<br>
-> Sorry!
+> Once that is done, a proper release will be made.  Sorry!
 
-Below is the current documentation for now:
+## Documentation
+
+- Installation & Docs:
+  - [Pyrite64 Installation](./docs/setup_editor.md)
+  - [Using the Editor](./docs/usage_editor.md)
+  - [@TODO: CLI usage]
+- Development on the editor itself:
+  - [Build (Editor)](./docs/build_editor.md)
 
 ## Showcase
 
@@ -36,20 +48,10 @@ Below is the current documentation for now:
 Cathode Quest 64 (YouTube)  
 </p>
 
-## Documentation
-
-- Installation & Docs:
-  - [Pyrite64 Installation](./docs/setup_editor.md)
-  - [Using the Editor](./docs/usage_editor.md)
-  - [@TODO: CLI usage]
-- Development on the editor itself:
-  - [Build (Editor)](./docs/build_editor.md)
-
 ## Credits & License
 © 2025-2026 - Max Bebök (HailToDodongo)<br>
 
-Pyrite64 is licensed under the MIT License, see the [LICENSE](LICENSE) file for more information.
-
+Pyrite64 is licensed under the MIT License, see the [LICENSE](LICENSE) file for more information.<br>
 Licenses for external libraries used in the editor can be found in their respective directory under `/vendored`
 
 Pyrite64 does NOT force any restrictions or licenses on games made with it.<br>
