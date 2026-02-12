@@ -25,7 +25,7 @@ namespace Editor::Actions
        try {
          ctx.project = new Project::Project(path);
          if(ctx.project && !ctx.project->getScenes().getEntries().empty()) {
-           ctx.project->getScenes().loadScene(ctx.project->conf.sceneIdOnBoot);
+           ctx.project->getScenes().loadScene(ctx.project->conf.sceneIdLastOpened);
          }
        } catch (const std::exception &e) {
          auto error = "Failed to open project:\n" + std::string(e.what());
