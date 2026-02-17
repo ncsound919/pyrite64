@@ -3,7 +3,13 @@ name: Windows (MSYS2 UCRT64)
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
 
 jobs:
   build-windows:
