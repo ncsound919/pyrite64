@@ -31,7 +31,7 @@ Besides the usual editor, some extra features include:
 - Node-Graph editor to script basic control flow
 
 Note that this project focuses on real hardware, so accurate emulation is required to run/test games on PC.<br>
-Emulators that are accurate enough include [Ares](https://ares-emu.net/) and [gopher64](https://github.com/gopher64/gopher64).
+Emulators that are accurate enough include [Ares (v147 or newer)](https://ares-emu.net/) and [gopher64](https://github.com/gopher64/gopher64).
 
 > [!WARNING]
 > This project is still in early development, so features are going to be missing.<br>
