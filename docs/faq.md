@@ -30,3 +30,10 @@ For setting during export check this note here:
 https://github.com/HailToDodongo/tiny3d?tab=readme-ov-file#gltf-model-import
 Make sure textures are .png files present in the `assets` folder of your project.<br>
 The tiny3d repo also contains example .blend files.
+
+## Can i sell games made with it / will i get sued?
+I'm not a lawyer, and the following is not legal advice.<br>
+Pyrite64 itself is licensed under MIT, and i put no restrictions on what you can do with games.<br>
+The SDKs used, namely libdragon and tiny3d have similar licenses.<br>
+Pyrite64 does **NOT** use any proprietary SDKs, like some projects you may have heard of in the past.<br>
+So in general is should be safe to sell games if you whish.
