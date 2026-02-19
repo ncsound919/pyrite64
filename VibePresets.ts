@@ -625,6 +625,7 @@ const SHADING_PRESETS: Preset[] = [
       vertexEffect: 'CELSHADE_COLOR',
       outlineEnabled: true, outlineMode: 0, outlineThickness: 2.0,
       celBands: 4, hatchStr: 0.5, warmth: 0.3,
+      outlineColor: '#261400',
     },
     prompt: 'I chose the Retro Cartoon shading preset — warm sepia tones with cross-hatch shadow patterns. Help me set up vintage-style materials with warm lighting for a classic animation feel.',
   },
