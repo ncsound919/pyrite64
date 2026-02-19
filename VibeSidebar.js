@@ -147,6 +147,21 @@ export class VibeSidebar {
         </div>
       </div>
 
+      <!-- Vibe grade -->
+      <div class="vibe-scorecard">
+        <div class="scorecard-header">
+          <span>Vibe Grade</span>
+          <span class="scorecard-score">8/10</span>
+        </div>
+        <div class="scorecard-subtitle">Game + cartoon vibe engine</div>
+        <ul class="scorecard-list">
+          <li>Hardware-accurate preview with performance heatmaps.</li>
+          <li>More toon shader presets with per-material palette tools.</li>
+          <li>Guided onboarding quests + sample game templates.</li>
+          <li>Live audio/FX mixer with timeline sync.</li>
+        </ul>
+      </div>
+
       <div style="height:8px;"></div>
     `;
         this.buildTabs(el);
