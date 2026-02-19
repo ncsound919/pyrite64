@@ -107,7 +107,8 @@ function bakeTrack(
   const samples: number[] = [];
 
   for (let f = 0; f < frameCount; f++) {
-    const t = (f / Math.max(frameCount - 1, 1)) * duration;
+    // Sample at fixed SAMPLE_RATE_FPS so each frame corresponds to a 1/30s tick.
+    const t = Math.min(f / SAMPLE_RATE_FPS, duration);
     const val = evaluateTrack(track, t);
 
     if (track.property === 'rotation') {
