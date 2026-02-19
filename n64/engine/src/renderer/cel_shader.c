@@ -84,18 +84,22 @@ void cel_shader_begin(uint8_t bands, color_t color) {
   rdpq_tex_upload(TILE1, &cel_lut_surface, NULL);
 
   /*
-   * Combiner formula (2-cycle mode):
+   * Combiner formula (2-cycle mode, approximate toon effect):
    *
    * Cycle 1: standard diffuse
    *   RGB = (SHADE - 0) * PRIM + 0      => vertex diffuse tinted by prim color
    *
-   * Cycle 2: LUT lookup (approximated — real HW uses TEX ENV trick)
+   * Cycle 2: optional post-tint
    *   RGB = (COMBINED - 0) * ENV + 0
    *
-   * Note: True hardware LUT lookup via combiner is non-trivial.
-   * The real implementation uses a custom display list approach or
-   * pre-bakes the band quantization into vertex colors via the editor.
-   * TODO: implement the display-list-based approach from tiny3d's rdpq_mode API
+   * This setup does NOT perform a true 1D LUT lookup in hardware; it simply
+   * produces a two-cycle shaded/tinted result that can resemble a cartoon
+   * style depending on the chosen PRIM / ENV colors and vertex normals.
+   *
+   * For production-quality cel shading, the recommended path is to use the
+   * asset pipeline to pre-bake banded lighting into vertex colors via
+   * cel_quantize(), avoiding the need for complex display-list-based
+   * combiner tricks or texture-coordinate-driven LUT sampling.
    */
   rdpq_set_prim_color(color);
   rdpq_mode_combiner(RDPQ_COMBINER2(
