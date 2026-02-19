@@ -40,6 +40,14 @@ export interface BudgetSnapshot {
   rdramKB:   { used: number; max: number };
 }
 
+// ─── Vibe scorecard data ──────────────────────────────────────────────────────
+
+export interface VibeScorecard {
+  score:        string;
+  subtitle:     string;
+  improvements: string[];
+}
+
 // ─── Type icon map ────────────────────────────────────────────────────────────
 
 const TYPE_ICON: Record<SidebarEntity['type'], string> = {
@@ -48,6 +56,17 @@ const TYPE_ICON: Record<SidebarEntity['type'], string> = {
   camera:    '⊡',
   empty:     '◎',
   collision: '⬡',
+};
+
+const DEFAULT_VIBE_SCORECARD: VibeScorecard = {
+  score:    '8/10',
+  subtitle: 'Game + cartoon vibe engine',
+  improvements: [
+    'Hardware-accurate preview with performance heatmaps.',
+    'More toon shader presets with per-material palette tools.',
+    'Guided onboarding quests + sample game templates.',
+    'Live audio/FX mixer with timeline sync.',
+  ],
 };
 
 // ─── VibeSidebar ─────────────────────────────────────────────────────────────
@@ -61,6 +80,10 @@ export class VibeSidebar {
   private renderMode:    RenderMode             = 'standard';
   private gridVisible:   boolean                = true;
   private cartoonEnabled:boolean                = false;
+  private vibeScorecard: VibeScorecard           = {
+    ...DEFAULT_VIBE_SCORECARD,
+    improvements: [...DEFAULT_VIBE_SCORECARD.improvements],
+  };
   private budget:        BudgetSnapshot         = {
     tris:    { used: 0, max: 64  },
     verts:   { used: 0, max: 800 },
@@ -75,6 +98,9 @@ export class VibeSidebar {
   private budgetTrisVal!:  HTMLElement;
   private budgetVertVal!:  HTMLElement;
   private budgetRamVal!:   HTMLElement;
+  private scorecardScoreEl!: HTMLElement;
+  private scorecardSubtitleEl!: HTMLElement;
+  private scorecardListEl!: HTMLElement;
   private renderBtns:      Map<RenderMode, HTMLButtonElement> = new Map();
 
   constructor() {
@@ -104,6 +130,15 @@ export class VibeSidebar {
   updateBudget(snapshot: BudgetSnapshot): void {
     this.budget = snapshot;
     this.renderBudget();
+  }
+
+  /** Update the visible vibe scorecard content. */
+  setVibeScorecard(scorecard: VibeScorecard): void {
+    this.vibeScorecard = {
+      ...scorecard,
+      improvements: [...scorecard.improvements],
+    };
+    this.renderScorecard();
   }
 
   /** Sync render mode pill without firing change event (avoids loop). */
@@ -201,12 +236,23 @@ export class VibeSidebar {
         </div>
       </div>
 
+      <!-- Vibe grade -->
+      <div class="vibe-scorecard">
+        <div class="scorecard-header">
+          <span>Vibe Grade</span>
+          <span class="scorecard-score" id="vibe-scorecard-score"></span>
+        </div>
+        <div class="scorecard-subtitle" id="vibe-scorecard-subtitle"></div>
+        <ul class="scorecard-list" id="vibe-scorecard-list"></ul>
+      </div>
+
       <div style="height:8px;"></div>
     `;
 
     this.buildTabs(el);
     this.buildRenderModes(el);
     this.cacheRefs(el);
+    this.renderScorecard();
     this.wireEvents(el);
 
     return el;
@@ -327,6 +373,9 @@ export class VibeSidebar {
     this.budgetTrisVal   = root.querySelector('#budget-tris-val')!;
     this.budgetVertVal   = root.querySelector('#budget-vert-val')!;
     this.budgetRamVal    = root.querySelector('#budget-ram-val')!;
+    this.scorecardScoreEl = root.querySelector('#vibe-scorecard-score')!;
+    this.scorecardSubtitleEl = root.querySelector('#vibe-scorecard-subtitle')!;
+    this.scorecardListEl = root.querySelector('#vibe-scorecard-list')!;
   }
 
   private wireEvents(root: HTMLElement): void {
@@ -360,6 +409,22 @@ export class VibeSidebar {
   }
 
   // ── Renderers ──────────────────────────────────────────────────────────────
+
+  private renderScorecard(): void {
+    if (!this.scorecardScoreEl || !this.scorecardSubtitleEl || !this.scorecardListEl) {
+      return;
+    }
+
+    this.scorecardScoreEl.textContent = this.vibeScorecard.score;
+    this.scorecardSubtitleEl.textContent = this.vibeScorecard.subtitle;
+    this.scorecardListEl.innerHTML = '';
+
+    this.vibeScorecard.improvements.forEach((item) => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      this.scorecardListEl.appendChild(li);
+    });
+  }
 
   private renderEntityTree(): void {
     const countEl = this.el.querySelector('#scene-entity-count');

@@ -340,6 +340,63 @@ body::before {
   flex-shrink: 0;
 }
 
+/* Vibe scorecard */
+.vibe-scorecard {
+  margin: 8px 12px 6px;
+  padding: 10px 10px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(12, 8, 28, 0.78);
+  border: 1px solid rgba(157, 78, 221, 0.25);
+  box-shadow: 0 0 16px rgba(157, 78, 221, 0.12);
+}
+
+.scorecard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.scorecard-score {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--neon-cyan);
+}
+
+.scorecard-subtitle {
+  font-size: 10px;
+  color: var(--text-primary);
+  opacity: 0.82;
+  margin-bottom: 6px;
+}
+
+.scorecard-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-dim);
+  padding-left: 0;
+}
+
+.scorecard-list li {
+  position: relative;
+  padding-left: 10px;
+}
+
+.scorecard-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--neon-purple);
+}
+
 /* ─── Viewport Area ─────────────────────────────────────────────────────────── */
 
 #vibe-viewport {
