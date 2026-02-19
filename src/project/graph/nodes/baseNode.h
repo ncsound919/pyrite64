@@ -60,6 +60,11 @@ namespace Project::Graph
 
     BuildCtx& globalVar(const std::string &type, const std::string &name, auto initVal)
     {
+      // Deduplicate: only add if a variable with this name isn't already declared.
+      // Linear scan is acceptable; node graphs typically have fewer than ~50 global vars.
+      for(const auto &v : vars) {
+        if(v.name == name) return *this;
+      }
       vars.push_back(VarDef{type, name, toStr(initVal)});
       return *this;
     }

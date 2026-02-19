@@ -14,10 +14,10 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
-import { N64MaterialBridge } from './N64MaterialBridge';
-import { CameraController } from './CameraController';
-import { CartoonPass } from './CartoonPass';
-import { GridHelper } from './GridHelper';
+import { N64MaterialBridge } from './N64MaterialBridge.js';
+import { CameraController } from './CameraController.js';
+import { CartoonPass } from './CartoonPass.js';
+import { GridHelper } from './GridHelper.js';
 
 // ─── N64 Hardware Constraints ─────────────────────────────────────────────────
 
@@ -27,6 +27,7 @@ export const N64_LIMITS = {
   VALID_TEX_SIZES:     [32, 64, 128, 256] as const,
   BIG_TEX_SIZE:        256,     // requires big-tex render mode
   RDRAM_TOTAL_BYTES:   4 * 1024 * 1024,   // 4MB base
+  RDRAM_KB:            4096,    // RDRAM budget in KB (RDRAM_TOTAL_BYTES / 1024)
   FIXED_POINT_SCALE:   65536,   // 16.16 fixed point
 } as const;
 
@@ -69,7 +70,7 @@ export class Viewport3D {
   private composer:    EffectComposer;
   private outlinePass: OutlinePass;
   private cartoonPass: CartoonPass;
-  private grid:        GridHelper;
+  readonly grid:       GridHelper;
   private camCtrl:     CameraController;
   private matBridge:   N64MaterialBridge;
 
@@ -299,6 +300,18 @@ export class Viewport3D {
       if (obj instanceof THREE.Mesh) box.expandByObject(obj);
     });
     if (!box.isEmpty()) this.camCtrl.fitToBox(box);
+  }
+
+  /**
+   * Start the render loop. Safe to call multiple times — no-op if already running.
+   * (The constructor auto-starts the loop, but the dashboard may call this explicitly.)
+   */
+  startRendering(): void {
+    // Loop is started in the constructor via startLoop().
+    // This is an explicit public alias for clarity.
+    if (this.animFrameId === null) {
+      this.startLoop();
+    }
   }
 
   /** Frame a specific node by id. */
