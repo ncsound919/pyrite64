@@ -17,10 +17,10 @@
  */
 
 #include "cel_shader.h"
-#include <math.h>
 #include <libdragon.h>
 #include <t3d/t3d.h>
 #include <t3d/t3dmodel.h>
+#include <math.h>
 
 // ─── Palette LUT texture ──────────────────────────────────────────────────────
 
