@@ -18,6 +18,16 @@ const TYPE_ICON = {
     empty: '◎',
     collision: '⬡',
 };
+const DEFAULT_VIBE_SCORECARD = {
+    score: '8/10',
+    subtitle: 'Game + cartoon vibe engine',
+    improvements: [
+        'Hardware-accurate preview with performance heatmaps.',
+        'More toon shader presets with per-material palette tools.',
+        'Guided onboarding quests + sample game templates.',
+        'Live audio/FX mixer with timeline sync.',
+    ],
+};
 // ─── VibeSidebar ─────────────────────────────────────────────────────────────
 export class VibeSidebar {
     constructor() {
@@ -27,6 +37,10 @@ export class VibeSidebar {
         this.renderMode = 'standard';
         this.gridVisible = true;
         this.cartoonEnabled = false;
+        this.vibeScorecard = {
+            ...DEFAULT_VIBE_SCORECARD,
+            improvements: [...DEFAULT_VIBE_SCORECARD.improvements],
+        };
         this.budget = {
             tris: { used: 0, max: 64 },
             verts: { used: 0, max: 800 },
@@ -54,6 +68,14 @@ export class VibeSidebar {
     updateBudget(snapshot) {
         this.budget = snapshot;
         this.renderBudget();
+    }
+    /** Update the visible vibe scorecard content. */
+    setVibeScorecard(scorecard) {
+        this.vibeScorecard = {
+            ...scorecard,
+            improvements: [...scorecard.improvements],
+        };
+        this.renderScorecard();
     }
     /** Sync render mode pill without firing change event (avoids loop). */
     syncRenderMode(mode) {
@@ -151,15 +173,10 @@ export class VibeSidebar {
       <div class="vibe-scorecard">
         <div class="scorecard-header">
           <span>Vibe Grade</span>
-          <span class="scorecard-score">8/10</span>
+          <span class="scorecard-score" id="vibe-scorecard-score"></span>
         </div>
-        <div class="scorecard-subtitle">Game + cartoon vibe engine</div>
-        <ul class="scorecard-list">
-          <li>Hardware-accurate preview with performance heatmaps.</li>
-          <li>More toon shader presets with per-material palette tools.</li>
-          <li>Guided onboarding quests + sample game templates.</li>
-          <li>Live audio/FX mixer with timeline sync.</li>
-        </ul>
+        <div class="scorecard-subtitle" id="vibe-scorecard-subtitle"></div>
+        <ul class="scorecard-list" id="vibe-scorecard-list"></ul>
       </div>
 
       <div style="height:8px;"></div>
@@ -167,6 +184,7 @@ export class VibeSidebar {
         this.buildTabs(el);
         this.buildRenderModes(el);
         this.cacheRefs(el);
+        this.renderScorecard();
         this.wireEvents(el);
         return el;
     }
@@ -270,6 +288,9 @@ export class VibeSidebar {
         this.budgetTrisVal = root.querySelector('#budget-tris-val');
         this.budgetVertVal = root.querySelector('#budget-vert-val');
         this.budgetRamVal = root.querySelector('#budget-ram-val');
+        this.scorecardScoreEl = root.querySelector('#vibe-scorecard-score');
+        this.scorecardSubtitleEl = root.querySelector('#vibe-scorecard-subtitle');
+        this.scorecardListEl = root.querySelector('#vibe-scorecard-list');
     }
     wireEvents(root) {
         // Grid toggle
@@ -302,6 +323,19 @@ export class VibeSidebar {
         });
     }
     // ── Renderers ──────────────────────────────────────────────────────────────
+    renderScorecard() {
+        if (!this.scorecardScoreEl || !this.scorecardSubtitleEl || !this.scorecardListEl) {
+            return;
+        }
+        this.scorecardScoreEl.textContent = this.vibeScorecard.score;
+        this.scorecardSubtitleEl.textContent = this.vibeScorecard.subtitle;
+        this.scorecardListEl.innerHTML = '';
+        this.vibeScorecard.improvements.forEach((item) => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            this.scorecardListEl.appendChild(li);
+        });
+    }
     renderEntityTree() {
         const countEl = this.el.querySelector('#scene-entity-count');
         if (countEl)
