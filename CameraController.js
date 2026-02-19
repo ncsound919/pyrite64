@@ -1,5 +1,5 @@
 /**
- * CameraController.ts
+ * CameraController.js
  * Orbit (hold Alt + drag) and Fly (WASD) camera controller for the viewport.
  *
  * Wraps Three.js OrbitControls as the base, adds:
