@@ -294,7 +294,7 @@ export class VibeDashboard {
         const snapshot = {
             tris:    { used: w.type === 'tris'  ? N64_LIMITS.MAX_TRIS_PER_MESH + 1   : 0, max: N64_LIMITS.MAX_TRIS_PER_MESH },
             verts:   { used: w.type === 'verts' ? N64_LIMITS.MAX_VERTS_PER_FRAME + 1 : 0, max: N64_LIMITS.MAX_VERTS_PER_FRAME },
-            rdramKB: { used: w.type === 'rdram' ? 4097                               : 0, max: 4096 },
+            rdramKB: { used: w.type === 'rdram' ? N64_LIMITS.RDRAM_KB + 1               : 0, max: N64_LIMITS.RDRAM_KB },
         };
         this.sidebar.updateBudget(snapshot);
         // Notify in chat if critical

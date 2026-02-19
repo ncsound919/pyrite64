@@ -24,6 +24,7 @@ export const N64_LIMITS = {
     VALID_TEX_SIZES: [32, 64, 128, 256],
     BIG_TEX_SIZE: 256, // requires big-tex render mode
     RDRAM_TOTAL_BYTES: 4 * 1024 * 1024, // 4MB base
+    RDRAM_KB: 4096, // RDRAM budget in KB (RDRAM_TOTAL_BYTES / 1024)
     FIXED_POINT_SCALE: 65536, // 16.16 fixed point
 };
 // ─── Viewport3D ───────────────────────────────────────────────────────────────

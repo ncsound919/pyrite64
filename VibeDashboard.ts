@@ -26,7 +26,7 @@
 
 import { VibeSidebar, SidebarEntity, BudgetSnapshot } from './VibeSidebar.js';
 import { VibeChat } from './VibeChat.js';
-import { Viewport3D, ViewportOptions, RenderMode, BudgetWarning, SceneNodeData } from './Viewport3D.js';
+import { Viewport3D, ViewportOptions, RenderMode, BudgetWarning, SceneNodeData, N64_LIMITS } from './Viewport3D.js';
 import { NodeGraphConfig, VibeContext } from './VibeNode.js';
 import { VibeAnimTimeline, Track } from './VibeAnimTimeline.js';
 import { PROMPT_LIBRARY, getGroupedTemplates, PromptTemplate, PromptCategory } from './VibePromptLibrary.js';
@@ -371,9 +371,9 @@ export class VibeDashboard {
     // Update sidebar budget strip
     // (We track live increments; for a real integration you'd query the scene)
     const snapshot: BudgetSnapshot = {
-      tris:    { used: 0, max: 64  },
-      verts:   { used: 0, max: 800 },
-      rdramKB: { used: 0, max: 4096 },
+      tris:    { used: w.type === 'tris'  ? N64_LIMITS.MAX_TRIS_PER_MESH + 1   : 0, max: N64_LIMITS.MAX_TRIS_PER_MESH },
+      verts:   { used: w.type === 'verts' ? N64_LIMITS.MAX_VERTS_PER_FRAME + 1 : 0, max: N64_LIMITS.MAX_VERTS_PER_FRAME },
+      rdramKB: { used: w.type === 'rdram' ? N64_LIMITS.RDRAM_KB + 1            : 0, max: N64_LIMITS.RDRAM_KB },
     };
     this.sidebar.updateBudget(snapshot);
 
