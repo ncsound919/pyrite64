@@ -19,7 +19,6 @@ import {
   type Keyframe,
   type TrackProperty,
   type EasingMode,
-  createClip,
   addTrack,
   insertKeyframe,
   removeKeyframe,
