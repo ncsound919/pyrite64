@@ -1,5 +1,5 @@
 /**
- * VibeSidebar.ts
+ * VibeSidebar.js
  * Left sidebar panel for the Vibe Coding Dashboard.
  *
  * Responsibilities:
