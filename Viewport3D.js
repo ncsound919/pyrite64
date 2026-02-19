@@ -1,5 +1,5 @@
 /**
- * Viewport3D.ts
+ * Viewport3D.js
  * Pyrite64 — Three.js 3D scene preview viewport
  *
  * Renders the editor scene graph in realtime using Three.js,
