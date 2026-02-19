@@ -1,5 +1,5 @@
 /**
- * VibeNode.ts
+ * VibeNode.js
  * AI-assisted scripting node for Pyrite64's Node-Graph editor.
  *
  * The user types natural language into this node. On confirm,
