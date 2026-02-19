@@ -1,5 +1,5 @@
 /**
- * VibeChat.ts
+ * VibeChat.js
  * Right-panel chat interface for the Vibe Coding Dashboard.
  *
  * Responsibilities:
