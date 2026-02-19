@@ -13,8 +13,6 @@
 // ─── Style configurations ─────────────────────────────────────────────────────
 
 // Saturation: 256 = 1.0x, 332 = 1.3x, 358 = 1.4x, 192 = 0.75x, 230 = 0.9x
-
-// Saturation: 256 = 1.0x, 332 = 1.3x, 358 = 1.4x, 192 = 0.75x, 230 = 0.9x
 // Warmth:     0 = neutral, +77 ≈ +0.3, -26 ≈ -0.1, +13 ≈ +0.05, +38 ≈ +0.15
 
 static const PaletteStyleConf STYLE_TABLE[PALETTE_STYLE_COUNT] = {

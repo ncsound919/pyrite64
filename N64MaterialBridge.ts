@@ -14,7 +14,6 @@
 
 import * as THREE from 'three';
 import {
-  type CartoonStyleConfig,
   type CartoonStyleId,
   getCartoonStyle,
   getDefaultCartoonStyle,
