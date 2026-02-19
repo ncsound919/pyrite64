@@ -24,9 +24,25 @@
 
 #include "baseNode.h"
 #include "../../../utils/hash.h"
+#include <cctype>
 
 namespace Project::Graph::Node
 {
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  /** Sanitize a user-provided state name to a valid C++ identifier fragment.
+   *  Replaces any character that is not alphanumeric or '_' with '_'.
+   *  Prepends "s_" when the name starts with a digit or is empty. */
+  static inline std::string sanitizeStateName(const std::string &name) {
+    std::string result;
+    result.reserve(name.size());
+    for(char c : name) {
+      result += (std::isalnum((unsigned char)c) || c == '_') ? c : '_';
+    }
+    if(result.empty() || std::isdigit((unsigned char)result[0])) result = "s_" + result;
+    return result;
+  }
+
   // ── Button constants ───────────────────────────────────────────────────────
 
   namespace {
@@ -279,7 +295,8 @@ namespace Project::Graph::Node
       }
 
       void build(BuildCtx &ctx) override {
-        auto varName = ctx.globalVar("uint16_t", 0);
+        std::string varName = "gv_state_" + sanitizeStateName(stateName);
+        ctx.globalVar("uint16_t", varName, 0);
         ctx.line(varName + " = " + std::to_string(stateValue) + ";");
       }
   };
@@ -320,7 +337,8 @@ namespace Project::Graph::Node
       }
 
       void build(BuildCtx &ctx) override {
-        auto varName = ctx.globalVar("uint16_t", 0);
+        std::string varName = "gv_state_" + sanitizeStateName(stateName);
+        ctx.globalVar("uint16_t", varName, 0);
         (void)varName; // value is read by connected nodes via the global var
       }
   };
@@ -370,7 +388,8 @@ namespace Project::Graph::Node
       }
 
       void build(BuildCtx &ctx) override {
-        auto varName = ctx.globalVar("uint16_t", 0);
+        std::string varName = "gv_state_" + sanitizeStateName(stateName);
+        ctx.globalVar("uint16_t", varName, 0);
 
         // Generate a switch-like cascade:
         //   if(state == 0) goto S0;

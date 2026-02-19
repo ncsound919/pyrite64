@@ -24,6 +24,7 @@ export const N64_LIMITS = {
     VALID_TEX_SIZES: [32, 64, 128, 256],
     BIG_TEX_SIZE: 256, // requires big-tex render mode
     RDRAM_TOTAL_BYTES: 4 * 1024 * 1024, // 4MB base
+    RDRAM_KB: 4096, // RDRAM budget in KB (RDRAM_TOTAL_BYTES / 1024)
     FIXED_POINT_SCALE: 65536, // 16.16 fixed point
 };
 // ─── Viewport3D ───────────────────────────────────────────────────────────────
@@ -162,28 +163,26 @@ export class Viewport3D {
                             break;
                         }
                         case 'cartoon': {
-                            const newMaterial = this.matBridge.toCartoon(oldMaterial);
+                            const newMaterial = Array.isArray(oldMaterial)
+                                ? oldMaterial.map(m => this.matBridge.toCartoon(m))
+                                : this.matBridge.toCartoon(oldMaterial);
                             child.material = newMaterial;
-                            if (oldMaterial !== newMaterial && oldMaterial && typeof oldMaterial.dispose === 'function') {
-                                if (Array.isArray(oldMaterial)) {
-                                    oldMaterial.forEach(mat => mat.dispose());
-                                }
-                                else {
-                                    oldMaterial.dispose();
-                                }
+                            if (Array.isArray(oldMaterial)) {
+                                oldMaterial.forEach((mat, i) => { if (mat !== newMaterial[i] && typeof mat.dispose === 'function') mat.dispose(); });
+                            } else if (oldMaterial !== newMaterial && oldMaterial && typeof oldMaterial.dispose === 'function') {
+                                oldMaterial.dispose();
                             }
                             break;
                         }
                         case 'n64-accurate': {
-                            const newMaterial = this.matBridge.toN64Accurate(oldMaterial);
+                            const newMaterial = Array.isArray(oldMaterial)
+                                ? oldMaterial.map(m => this.matBridge.toN64Accurate(m))
+                                : this.matBridge.toN64Accurate(oldMaterial);
                             child.material = newMaterial;
-                            if (oldMaterial !== newMaterial && oldMaterial && typeof oldMaterial.dispose === 'function') {
-                                if (Array.isArray(oldMaterial)) {
-                                    oldMaterial.forEach(mat => mat.dispose());
-                                }
-                                else {
-                                    oldMaterial.dispose();
-                                }
+                            if (Array.isArray(oldMaterial)) {
+                                oldMaterial.forEach((mat, i) => { if (mat !== newMaterial[i] && typeof mat.dispose === 'function') mat.dispose(); });
+                            } else if (oldMaterial !== newMaterial && oldMaterial && typeof oldMaterial.dispose === 'function') {
+                                oldMaterial.dispose();
                             }
                             break;
                         }
