@@ -206,6 +206,10 @@ export function validateClip(obj: unknown): void {
       if (!Array.isArray(k.value) || k.value.length !== 3) {
         throw new Error('keyframe.value must be a 3-element array');
       }
+      const valueComponents = k.value as unknown[];
+      if (!valueComponents.every((component) => typeof component === 'number' && Number.isFinite(component))) {
+        throw new Error('keyframe.value must contain three finite numbers');
+      }
       if (!validEasings.includes(k.easing as EasingMode)) {
         throw new Error(`keyframe.easing must be one of: ${validEasings.join(', ')}`);
       }
