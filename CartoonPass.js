@@ -1,5 +1,5 @@
 /**
- * CartoonPass.ts
+ * CartoonPass.js
  * Post-processing pass that applies cartoon / cel-shade aesthetics.
  *
  * Composited in EffectComposer after the main RenderPass.
