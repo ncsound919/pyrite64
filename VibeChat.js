@@ -16,6 +16,9 @@ import { VibeNode } from './VibeNode.js';
 const QUICK_PROMPTS = [
     'Chase player on enter',
     'Patrol between waypoints',
+    'Build a 3-hit combo with hitstop and knockback',
+    'Add parry window + counter attack on perfect timing',
+    'Create a 3-phase boss with health thresholds',
     'Play idle anim on tick',
     'Jump when grounded',
     'Play hit sound on collide',

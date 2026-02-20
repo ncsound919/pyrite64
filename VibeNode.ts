@@ -416,6 +416,8 @@ Input:
 State management:
   SetState      – set a named state var; data: { "name": string, "value": int }
   GetState      – read a named state var; data: { "name": string }; value-out: int
+  SetFlag       – set boolean flag; data: { "name": string, "value": bool }
+  CheckFlag     – read boolean flag; data: { "name": string }; value-out: bool
 
 Values & math:
   GetDistance    – distance between two entities; data: { "target": string }; value-out: float
@@ -438,6 +440,9 @@ Misc:
   Arg           – function argument
   Note          – comment (no runtime effect)
   DebugLog      – print to console; data: { "message": string }
+  WaitFrames    – pause coroutine for exact frame count; data: { "frames": int }
+  SetHUDText    – update HUD label; data: { "key": string, "value": string }
+  EmitSignal    – send gameplay signal/event; data: { "name": string }
 
 N64 JOYPAD BUTTONS:
   A, B, Z, Start, D-Up, D-Down, D-Left, D-Right, L, R, C-Up, C-Down, C-Left, C-Right
@@ -445,6 +450,7 @@ N64 JOYPAD BUTTONS:
 RULES (non-negotiable — N64 hardware constraints):
 - No heap allocations. No dynamic strings. No recursion.
 - Keep graphs small: prefer 3–15 nodes. The N64 runs at 30fps with ~3% CPU for scripts.
+- For combat graphs, always include anti-spam guards (cooldown, invuln, or hit-confirm flag).
 - Animation names must be one of: ${animations.join(', ') || 'none'}
 - Sound ids must be one of: ${sounds.join(', ') || 'none'}
 - Scene entities: ${entities.join(', ') || 'none'}

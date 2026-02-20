@@ -634,12 +634,13 @@ const DEFAULT_NODE_TYPES: string[] = [
   // Input
   'ReadStick',
   // State management
-  'SetState', 'GetState',
+  'SetState', 'GetState', 'SetFlag', 'CheckFlag',
   // Values & math
   'GetPosition', 'GetDistance', 'GetHealth', 'SetHealth',
   'GetScore', 'AddScore', 'Value', 'Compare', 'CompBool', 'MathOp',
+  // Combat/UI helpers
+  'WaitFrames', 'SetHUDText', 'EmitSignal',
   // Misc
   'Func', 'Arg', 'Note', 'DebugLog',
 ];
-
 

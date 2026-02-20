@@ -12,6 +12,7 @@
  * Available agents:
  *  AnimationAgent    – clip playback, timeline, blend trees, state machines
  *  MovementAgent     – locomotion, physics, pathfinding, input response
+ *  CombatAgent       – damage flow, combos, parries, boss phases, threat systems
  *  AIBehaviorAgent   – enemy AI, perception, patrol/chase/flee, decisions
  *  AudioAgent        – SFX triggers, music cues, spatial audio wiring
  *  SceneAgent        – scene transitions, object spawning, lifecycle events
@@ -22,6 +23,12 @@
 // ─── Base Agent ──────────────────────────────────────────────────────────────
 const ANTHROPIC_ENDPOINT = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
+function sanitize(str) {
+    return String(str ?? '').replace(/[\r\n]/g, ' ').replace(/[^\x20-\x7E]/g, '').trim();
+}
+function sanitizeArray(arr) {
+    return (arr ?? []).map(sanitize).filter(s => s.length > 0);
+}
 // Shared N64 constraint footer appended to every agent's system prompt
 const N64_CONSTRAINT_FOOTER = `
 N64 HARD CONSTRAINTS (non-negotiable):
@@ -174,6 +181,7 @@ RULES:
 - Loop animations (walk/run/idle) should have loop:true in data.
 - Action animations (attack/jump/die) should have loop:false.
 - Keep blend factors in 0.0–1.0 range (N64 fixed-point).
+- For combat chains, leave a clear cancel window (0.1s–0.3s Wait) between attack clips.
 Entity context: ${ctx.entityName} in scene with [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -202,7 +210,41 @@ RULES:
 - For "patrol" patterns, use MoveToward + WaitAnimEnd/Wait + Repeat forever.
 - For "jump", apply positive Y velocity then gravity (negative Y) after delay.
 - Prefer SetVelocity over SetPosition for physics-driven movement.
+- For combat movement, keep dodge/knockback bursts short (<= 0.3s) and restore control after.
 Scene entities: [${ctx.sceneEntities.join(', ')}].`;
+    }
+}
+/** Handles combat systems: damage flow, combos, parries, boss phases, threat systems */
+export class CombatAgent extends VibeAgent {
+    constructor() {
+        super(...arguments);
+        this.role = 'combat';
+        this.name = 'CombatAgent';
+        this.color = '#ff1744';
+        this.icon = '⚔';
+    }
+    buildDomainPrompt(ctx) {
+        const entityName = sanitize(ctx.entityName);
+        const entities = sanitizeArray(ctx.sceneEntities);
+        return `You are the COMBAT specialist for Pyrite64 (N64 game engine).
+Your job: generate deep combat node graphs with reliable hit-confirm flow.
+Entity: "${entityName}".
+
+COMBAT NODE TYPES you may use:
+  OnCollide, OnButtonPress, OnButtonHeld, OnTimer, OnTick,
+  Branch, Sequence, Repeat, Wait, SwitchCase,
+  SetState, GetState, SetHealth, GetHealth,
+  SetAnimSpeed, PlayAnim, WaitAnimEnd,
+  SetVelocity, Spawn, Destroy,
+  Compare, MathOp, Value
+
+RULES:
+- Damage should be deterministic: avoid random branching in core hit logic.
+- Include invuln/cooldown windows using states or timers to prevent hit spam.
+- For boss fights, use threshold phases with one-time transition guards.
+- For combos, separate startup/active/recovery windows with waits.
+- Keep each combat chain <= 15 nodes and N64-safe.
+Scene entities: [${entities.join(', ')}].`;
     }
 }
 /** Handles enemy AI: perception, decision trees, patrol/chase/flee state machines */
@@ -231,6 +273,7 @@ RULES:
 - Use OnTimer for periodic checks to reduce OnTick overhead.
 - State 0 = IDLE, State 1 = PATROL, State 2 = CHASE is a good default.
 - Health thresholds can drive "flee" behavior (GetHealth → Compare → SetState).
+- For bosses/combatants, gate phase changes with one-time flags so transitions do not spam.
 Scene entities: [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -288,6 +331,7 @@ RULES:
 - Spawn waves use Repeat + Spawn + Wait for staggered spawning.
 - Clean up spawned objects with Destroy + OnTimer to avoid memory limits.
 - Score pickups: OnCollide → AddScore → PlaySound → Destroy (this entity).
+- Combat pickups/projectiles should always include cleanup (Destroy or timer despawn).
 Scene entities: [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -312,6 +356,7 @@ OPTIMIZATION RULES:
 - Avoid chained PlayAnim without WaitAnimEnd (causes frame waste).
 - Merge multiple SetVelocity calls into one.
 - Target maximum 8 nodes per entry point chain.
+- In combat graphs, keep hit-confirm chains deterministic and avoid random branches in core damage flow.
 ALL node types are available. The user's request is an optimization goal.`;
     }
 }
@@ -320,6 +365,7 @@ export function createAllAgents() {
     return {
         'animation': new AnimationAgent(),
         'movement': new MovementAgent(),
+        'combat': new CombatAgent(),
         'ai-behavior': new AIBehaviorAgent(),
         'audio': new AudioAgent(),
         'scene': new SceneAgent(),

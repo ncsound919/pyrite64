@@ -12,6 +12,7 @@
  * Routing table (keyword → agent roles, can match multiple):
  *  anim / clip / walk / run / idle / blend     → animation
  *  move / jump / velocity / stick / patrol     → movement
+ *  combat / parry / combo / boss / damage       → combat
  *  enemy / chase / flee / AI / behavior / NPC  → ai-behavior
  *  sound / music / SFX / audio / footstep      → audio
  *  scene / spawn / wave / load / transition    → scene
@@ -33,11 +34,17 @@ const ROUTING_RULES = [
         roles: ['animation'],
     },
     {
-        keywords: /\b(move|jump|velocity|stick|patrol|patrol|locomot|sprint|dash|knockback|push|force|physics|gravity|slide|roll)\b/i,
+        keywords: /\b(move|jump|velocity|stick|patrol|patrol|locomot|sprint|dash|knockback|push|force|physics|gravity|slide|roll|dodge|hitstop|combo)\b/i,
         roles: ['movement'],
     },
     {
-        keywords: /\b(enemy|chase|flee|ai\b|behavior|npc|guard|aggro|detect|perceive|react|aggress|stealth|neutral|roam)\b/i,
+        // Intentional overlap with ai-behavior keywords: combat prompts should fan out
+        // to both combat and AI specialists when applicable.
+        keywords: /\b(combat|battle|brawler|boss|weapon|damage|health|parry|combo|projectile|hitbox|stagger|poise|aggro|threat|counter|i-?frames?)\b/i,
+        roles: ['combat'],
+    },
+    {
+        keywords: /\b(enemy|chase|flee|ai\b|behavior|npc|guard|aggro|detect|perceive|react|aggress|stealth|neutral|roam|threat|boss|phase|stagger|parry)\b/i,
         roles: ['ai-behavior'],
     },
     {
@@ -45,7 +52,7 @@ const ROUTING_RULES = [
         roles: ['audio'],
     },
     {
-        keywords: /\b(scene|spawn|wave|load|transition|pickup|coin|item|respawn|despawn|zone|trigger|door|warp|level)\b/i,
+        keywords: /\b(scene|spawn|wave|load|transition|pickup|coin|item|respawn|despawn|zone|trigger|door|warp|level|projectile|weapon|health|damage)\b/i,
         roles: ['scene'],
     },
     {
@@ -55,11 +62,13 @@ const ROUTING_RULES = [
 ];
 // Requests that clearly span multiple domains should route to multiple agents
 const MULTI_AGENT_KEYWORDS = /\b(and|while|also|then|with|plus|both)\b/i;
+const COMBAT_KEYWORDS = /\b(combat|battle|brawler|boss|weapon|damage|health|parry|combo|projectile|hitbox|stagger|poise|aggro)\b/i;
 // ── Canvas layout: each agent's nodes are placed in a separate horizontal band
 const AGENT_CANVAS_OFFSETS = {
     'animation': [0, 0],
     'movement': [400, 0],
-    'ai-behavior': [800, 0],
+    'combat': [800, 0],
+    'ai-behavior': [1200, 0],
     'audio': [0, 300],
     'scene': [400, 300],
     'build': [800, 300],
@@ -143,7 +152,8 @@ export class VibeAgentPool {
         }
         // If multiple domains match and the prompt uses "and/also/while" connectors,
         // keep all matches — otherwise keep only the strongest match (first found)
-        if (matches.size > 1 && !MULTI_AGENT_KEYWORDS.test(prompt)) {
+        const forceMulti = COMBAT_KEYWORDS.test(prompt);
+        if (matches.size > 1 && !forceMulti && !MULTI_AGENT_KEYWORDS.test(prompt)) {
             // Return only the first matched role (highest priority in order of rules)
             const first = ROUTING_RULES.find(r => r.keywords.test(prompt))?.roles[0];
             return first ? [first] : ['animation'];
@@ -160,6 +170,7 @@ export class VibeAgentPool {
         const scores = [
             ['animation', lower.split(' ').filter(w => /anim|clip|pose/.test(w)).length],
             ['movement', lower.split(' ').filter(w => /move|go|speed|fast|slow/.test(w)).length],
+            ['combat', lower.split(' ').filter(w => /combat|damage|hit|parry|combo|boss|weapon/.test(w)).length],
             ['ai-behavior', lower.split(' ').filter(w => /npc|villain|bot|auto/.test(w)).length],
             ['audio', lower.split(' ').filter(w => /hear|play|music|loud/.test(w)).length],
             ['scene', lower.split(' ').filter(w => /scene|world|map|area/.test(w)).length],
@@ -174,12 +185,13 @@ export class VibeAgentPool {
      */
     buildAgentPrompt(prompt, role) {
         const framing = {
-            'animation': 'Focus only on the ANIMATION aspects: ',
-            'movement': 'Focus only on the MOVEMENT/LOCOMOTION aspects: ',
-            'ai-behavior': 'Focus only on the AI BEHAVIOR/DECISION aspects: ',
+            'animation': 'Focus only on the ANIMATION aspects (timing, hit reactions, attack readability): ',
+            'movement': 'Focus only on the MOVEMENT/LOCOMOTION aspects (dodges, knockback, spacing): ',
+            'combat': 'Focus only on the COMBAT systems (damage flow, combo windows, parry/counter logic): ',
+            'ai-behavior': 'Focus only on the AI BEHAVIOR/DECISION aspects (aggro, phase logic, counters): ',
             'audio': 'Focus only on the AUDIO/SOUND aspects: ',
-            'scene': 'Focus only on the SCENE/LIFECYCLE aspects: ',
-            'build': 'Optimize for N64 performance: ',
+            'scene': 'Focus only on the SCENE/LIFECYCLE aspects (spawns, pickups, weapon state): ',
+            'build': 'Optimize for N64 performance while preserving combat feel: ',
         };
         return framing[role] + prompt;
     }
