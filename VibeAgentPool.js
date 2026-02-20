@@ -33,11 +33,11 @@ const ROUTING_RULES = [
         roles: ['animation'],
     },
     {
-        keywords: /\b(move|jump|velocity|stick|patrol|patrol|locomot|sprint|dash|knockback|push|force|physics|gravity|slide|roll)\b/i,
+        keywords: /\b(move|jump|velocity|stick|patrol|patrol|locomot|sprint|dash|knockback|push|force|physics|gravity|slide|roll|dodge|hitstop|combo)\b/i,
         roles: ['movement'],
     },
     {
-        keywords: /\b(enemy|chase|flee|ai\b|behavior|npc|guard|aggro|detect|perceive|react|aggress|stealth|neutral|roam)\b/i,
+        keywords: /\b(enemy|chase|flee|ai\b|behavior|npc|guard|aggro|detect|perceive|react|aggress|stealth|neutral|roam|threat|boss|phase|stagger|parry)\b/i,
         roles: ['ai-behavior'],
     },
     {
@@ -45,7 +45,7 @@ const ROUTING_RULES = [
         roles: ['audio'],
     },
     {
-        keywords: /\b(scene|spawn|wave|load|transition|pickup|coin|item|respawn|despawn|zone|trigger|door|warp|level)\b/i,
+        keywords: /\b(scene|spawn|wave|load|transition|pickup|coin|item|respawn|despawn|zone|trigger|door|warp|level|projectile|weapon|health|damage)\b/i,
         roles: ['scene'],
     },
     {
@@ -55,6 +55,7 @@ const ROUTING_RULES = [
 ];
 // Requests that clearly span multiple domains should route to multiple agents
 const MULTI_AGENT_KEYWORDS = /\b(and|while|also|then|with|plus|both)\b/i;
+const COMBAT_KEYWORDS = /\b(combat|battle|brawler|boss|weapon|damage|health|parry|combo|projectile|hitbox|stagger|poise|aggro)\b/i;
 // ── Canvas layout: each agent's nodes are placed in a separate horizontal band
 const AGENT_CANVAS_OFFSETS = {
     'animation': [0, 0],
@@ -143,7 +144,8 @@ export class VibeAgentPool {
         }
         // If multiple domains match and the prompt uses "and/also/while" connectors,
         // keep all matches — otherwise keep only the strongest match (first found)
-        if (matches.size > 1 && !MULTI_AGENT_KEYWORDS.test(prompt)) {
+        const forceMulti = COMBAT_KEYWORDS.test(prompt);
+        if (matches.size > 1 && !forceMulti && !MULTI_AGENT_KEYWORDS.test(prompt)) {
             // Return only the first matched role (highest priority in order of rules)
             const first = ROUTING_RULES.find(r => r.keywords.test(prompt))?.roles[0];
             return first ? [first] : ['animation'];
@@ -174,12 +176,12 @@ export class VibeAgentPool {
      */
     buildAgentPrompt(prompt, role) {
         const framing = {
-            'animation': 'Focus only on the ANIMATION aspects: ',
-            'movement': 'Focus only on the MOVEMENT/LOCOMOTION aspects: ',
-            'ai-behavior': 'Focus only on the AI BEHAVIOR/DECISION aspects: ',
+            'animation': 'Focus only on the ANIMATION aspects (timing, hit reactions, attack readability): ',
+            'movement': 'Focus only on the MOVEMENT/LOCOMOTION aspects (dodges, knockback, spacing): ',
+            'ai-behavior': 'Focus only on the AI BEHAVIOR/DECISION aspects (aggro, phase logic, counters): ',
             'audio': 'Focus only on the AUDIO/SOUND aspects: ',
-            'scene': 'Focus only on the SCENE/LIFECYCLE aspects: ',
-            'build': 'Optimize for N64 performance: ',
+            'scene': 'Focus only on the SCENE/LIFECYCLE aspects (spawns, pickups, weapon state): ',
+            'build': 'Optimize for N64 performance while preserving combat feel: ',
         };
         return framing[role] + prompt;
     }

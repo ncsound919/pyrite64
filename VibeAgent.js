@@ -174,6 +174,7 @@ RULES:
 - Loop animations (walk/run/idle) should have loop:true in data.
 - Action animations (attack/jump/die) should have loop:false.
 - Keep blend factors in 0.0–1.0 range (N64 fixed-point).
+- For combat chains, leave a clear cancel window (0.1s–0.3s Wait) between attack clips.
 Entity context: ${ctx.entityName} in scene with [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -202,6 +203,7 @@ RULES:
 - For "patrol" patterns, use MoveToward + WaitAnimEnd/Wait + Repeat forever.
 - For "jump", apply positive Y velocity then gravity (negative Y) after delay.
 - Prefer SetVelocity over SetPosition for physics-driven movement.
+- For combat movement, keep dodge/knockback bursts short (<= 0.3s) and restore control after.
 Scene entities: [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -231,6 +233,7 @@ RULES:
 - Use OnTimer for periodic checks to reduce OnTick overhead.
 - State 0 = IDLE, State 1 = PATROL, State 2 = CHASE is a good default.
 - Health thresholds can drive "flee" behavior (GetHealth → Compare → SetState).
+- For bosses/combatants, gate phase changes with one-time flags so transitions do not spam.
 Scene entities: [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -288,6 +291,7 @@ RULES:
 - Spawn waves use Repeat + Spawn + Wait for staggered spawning.
 - Clean up spawned objects with Destroy + OnTimer to avoid memory limits.
 - Score pickups: OnCollide → AddScore → PlaySound → Destroy (this entity).
+- Combat pickups/projectiles should always include cleanup (Destroy or timer despawn).
 Scene entities: [${ctx.sceneEntities.join(', ')}].`;
     }
 }
@@ -312,6 +316,7 @@ OPTIMIZATION RULES:
 - Avoid chained PlayAnim without WaitAnimEnd (causes frame waste).
 - Merge multiple SetVelocity calls into one.
 - Target maximum 8 nodes per entry point chain.
+- In combat graphs, keep hit-confirm chains deterministic and avoid random branches in core damage flow.
 ALL node types are available. The user's request is an optimization goal.`;
     }
 }
