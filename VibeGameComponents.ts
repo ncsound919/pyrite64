@@ -819,10 +819,11 @@ export const GAME_COMPONENTS: GameComponentTemplate[] = [
         clrChg,
       );
 
-      edges.push(connect(hold,  'out',     setChg,  'in'));
+      edges.push(connect(hold,  'out',     incChg, 'in'));
       edges.push(connect(incChg,'value',   addOne, 'A'));
       edges.push(connect(oneV,  'value',   addOne, 'B'));
       edges.push(connect(addOne,'result',  setChg, 'value'));
+      edges.push(connect(addOne,'result',  setChg, 'in'));
 
       edges.push(connect(rel,   'out',  chgVal,  'in'));
       edges.push(connect(chgVal,'value',isChgd,  'A'));
