@@ -38,6 +38,8 @@ const ROUTING_RULES = [
         roles: ['movement'],
     },
     {
+        // Intentional overlap with ai-behavior keywords: combat prompts should fan out
+        // to both combat and AI specialists when applicable.
         keywords: /\b(combat|battle|brawler|boss|weapon|damage|health|parry|combo|projectile|hitbox|stagger|poise|aggro|threat|counter|i-?frames?)\b/i,
         roles: ['combat'],
     },

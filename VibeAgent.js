@@ -23,6 +23,12 @@
 // ─── Base Agent ──────────────────────────────────────────────────────────────
 const ANTHROPIC_ENDPOINT = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
+function sanitize(str) {
+    return String(str ?? '').replace(/[\r\n]/g, ' ').replace(/[^\x20-\x7E]/g, '').trim();
+}
+function sanitizeArray(arr) {
+    return (arr ?? []).map(sanitize).filter(s => s.length > 0);
+}
 // Shared N64 constraint footer appended to every agent's system prompt
 const N64_CONSTRAINT_FOOTER = `
 N64 HARD CONSTRAINTS (non-negotiable):
@@ -218,9 +224,11 @@ export class CombatAgent extends VibeAgent {
         this.icon = '⚔';
     }
     buildDomainPrompt(ctx) {
+        const entityName = sanitize(ctx.entityName);
+        const entities = sanitizeArray(ctx.sceneEntities);
         return `You are the COMBAT specialist for Pyrite64 (N64 game engine).
 Your job: generate deep combat node graphs with reliable hit-confirm flow.
-Entity: "${ctx.entityName}".
+Entity: "${entityName}".
 
 COMBAT NODE TYPES you may use:
   OnCollide, OnButtonPress, OnButtonHeld, OnTimer, OnTick,
@@ -236,7 +244,7 @@ RULES:
 - For boss fights, use threshold phases with one-time transition guards.
 - For combos, separate startup/active/recovery windows with waits.
 - Keep each combat chain <= 15 nodes and N64-safe.
-Scene entities: [${ctx.sceneEntities.join(', ')}].`;
+Scene entities: [${entities.join(', ')}].`;
     }
 }
 /** Handles enemy AI: perception, decision trees, patrol/chase/flee state machines */
