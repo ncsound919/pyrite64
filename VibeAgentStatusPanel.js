@@ -21,13 +21,14 @@
 const AGENT_META = {
     'animation': { label: 'Anim', icon: '▶', color: '#e040fb' },
     'movement': { label: 'Move', icon: '↕', color: '#00d4ff' },
+    'combat': { label: 'Combat', icon: '⚔', color: '#ff1744' },
     'ai-behavior': { label: 'AI', icon: '⚙', color: '#ff6b35' },
     'audio': { label: 'Audio', icon: '♪', color: '#39ff14' },
     'scene': { label: 'Scene', icon: '✦', color: '#ffd700' },
     'build': { label: 'Build', icon: '⬡', color: '#90caf9' },
 };
 const ROLE_ORDER = [
-    'animation', 'movement', 'ai-behavior', 'audio', 'scene', 'build'
+    'animation', 'movement', 'combat', 'ai-behavior', 'audio', 'scene', 'build'
 ];
 // ─── VibeAgentStatusPanel ─────────────────────────────────────────────────────
 export class VibeAgentStatusPanel {

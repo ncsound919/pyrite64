@@ -12,6 +12,7 @@
  * Available agents:
  *  AnimationAgent    – clip playback, timeline, blend trees, state machines
  *  MovementAgent     – locomotion, physics, pathfinding, input response
+ *  CombatAgent       – damage flow, combos, parries, boss phases, threat systems
  *  AIBehaviorAgent   – enemy AI, perception, patrol/chase/flee, decisions
  *  AudioAgent        – SFX triggers, music cues, spatial audio wiring
  *  SceneAgent        – scene transitions, object spawning, lifecycle events
@@ -208,6 +209,37 @@ Scene entities: [${ctx.sceneEntities.join(', ')}].`;
     }
 }
 /** Handles enemy AI: perception, decision trees, patrol/chase/flee state machines */
+export class CombatAgent extends VibeAgent {
+    constructor() {
+        super(...arguments);
+        this.role = 'combat';
+        this.name = 'CombatAgent';
+        this.color = '#ff1744';
+        this.icon = '⚔';
+    }
+    buildDomainPrompt(ctx) {
+        return `You are the COMBAT specialist for Pyrite64 (N64 game engine).
+Your job: generate deep combat node graphs with reliable hit-confirm flow.
+Entity: "${ctx.entityName}".
+
+COMBAT NODE TYPES you may use:
+  OnCollide, OnButtonPress, OnButtonHeld, OnTimer, OnTick,
+  Branch, Sequence, Repeat, Wait, SwitchCase,
+  SetState, GetState, SetHealth, GetHealth,
+  SetAnimSpeed, PlayAnim, WaitAnimEnd,
+  SetVelocity, Spawn, Destroy,
+  Compare, MathOp, Value
+
+RULES:
+- Damage should be deterministic: avoid random branching in core hit logic.
+- Include invuln/cooldown windows using states or timers to prevent hit spam.
+- For boss fights, use threshold phases with one-time transition guards.
+- For combos, separate startup/active/recovery windows with waits.
+- Keep each combat chain <= 15 nodes and N64-safe.
+Scene entities: [${ctx.sceneEntities.join(', ')}].`;
+    }
+}
+/** Handles enemy AI: perception, decision trees, patrol/chase/flee state machines */
 export class AIBehaviorAgent extends VibeAgent {
     constructor() {
         super(...arguments);
@@ -325,6 +357,7 @@ export function createAllAgents() {
     return {
         'animation': new AnimationAgent(),
         'movement': new MovementAgent(),
+        'combat': new CombatAgent(),
         'ai-behavior': new AIBehaviorAgent(),
         'audio': new AudioAgent(),
         'scene': new SceneAgent(),

@@ -26,6 +26,7 @@ import type { AgentStatusEvent, AgentRole, AgentStatus, VibeAgent } from './Vibe
 const AGENT_META: Record<AgentRole, { label: string; icon: string; color: string }> = {
   'animation':   { label: 'Anim',   icon: '▶', color: '#e040fb' },
   'movement':    { label: 'Move',   icon: '↕', color: '#00d4ff' },
+  'combat':      { label: 'Combat', icon: '⚔', color: '#ff1744' },
   'ai-behavior': { label: 'AI',     icon: '⚙', color: '#ff6b35' },
   'audio':       { label: 'Audio',  icon: '♪', color: '#39ff14' },
   'scene':       { label: 'Scene',  icon: '✦', color: '#ffd700' },
@@ -33,7 +34,7 @@ const AGENT_META: Record<AgentRole, { label: string; icon: string; color: string
 };
 
 const ROLE_ORDER: AgentRole[] = [
-  'animation', 'movement', 'ai-behavior', 'audio', 'scene', 'build'
+  'animation', 'movement', 'combat', 'ai-behavior', 'audio', 'scene', 'build'
 ];
 
 // ─── VibeAgentStatusPanel ─────────────────────────────────────────────────────
