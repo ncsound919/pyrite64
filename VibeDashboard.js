@@ -400,8 +400,8 @@ export class VibeDashboard {
         }
     }
     onBudgetWarning(w) {
-        // Update sidebar budget strip
-        // (We track live increments; for a real integration you'd query the scene)
+        // Update the sidebar budget strip, using the warning type to flag which
+        // specific N64 budget (tris, verts, or RDRAM) is currently exceeded.
         const snapshot = {
             tris: { used: w.type === 'tris' ? N64_LIMITS.MAX_TRIS_PER_MESH + 1 : 0, max: N64_LIMITS.MAX_TRIS_PER_MESH },
             verts: { used: w.type === 'verts' ? N64_LIMITS.MAX_VERTS_PER_FRAME + 1 : 0, max: N64_LIMITS.MAX_VERTS_PER_FRAME },
