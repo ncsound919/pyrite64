@@ -1,5 +1,5 @@
 /**
- * BiotechSimulation.ts
+ * BiotechSimulation.js
  * Biological entity data model and simulation framework.
  *
  * Provides typed data models and helper functions for biotech simulations
