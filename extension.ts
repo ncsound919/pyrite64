@@ -13,11 +13,11 @@
  */
 
 import * as vscode from 'vscode';
-import { BioResearchPanel }        from './BioResearchPanel.js';
-import { SequenceAnalyzer }        from './SequenceAnalyzer.js';
-import { MutationTracker }         from './MutationTracker.js';
-import { PhysicsCalculator }       from './PhysicsCalculator.js';
-import { BioinformaticsProvider }  from './BioinformaticsProvider.js';
+import { BioResearchPanel }        from './BioResearchPanel';
+import { SequenceAnalyzer }        from './SequenceAnalyzer';
+import { MutationTracker }         from './MutationTracker';
+import { PhysicsCalculator }       from './PhysicsCalculator';
+import { BioinformaticsProvider }  from './BioinformaticsProvider';
 
 // ─── Extension lifecycle ──────────────────────────────────────────────────────
 

@@ -20,10 +20,10 @@
  */
 
 import * as vscode from 'vscode';
-import { SequenceAnalyzer, SequenceStats, Orf } from './SequenceAnalyzer.js';
-import { MutationTracker, Variant }              from './MutationTracker.js';
-import { PhysicsCalculator }                     from './PhysicsCalculator.js';
-import { BioinformaticsProvider, FastaRecord }   from './BioinformaticsProvider.js';
+import { SequenceAnalyzer, SequenceStats, Orf } from './SequenceAnalyzer';
+import { MutationTracker, Variant }              from './MutationTracker';
+import { PhysicsCalculator }                     from './PhysicsCalculator';
+import { BioinformaticsProvider, FastaRecord }   from './BioinformaticsProvider';
 
 // ─── Panel message types ──────────────────────────────────────────────────────
 
