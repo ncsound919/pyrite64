@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "FASTA",
+  "scopeName": "text.fasta",
+  "patterns": [
+    { "include": "#header" },
+    { "include": "#comment" },
+    { "include": "#nucleotides" },
+    { "include": "#ambiguous" },
+    { "include": "#aminoAcids" }
+  ],
+  "repository": {
+    "header": {
+      "name": "entity.name.function.fasta",
+      "match": "^>.*$"
+    },
+    "comment": {
+      "name": "comment.line.fasta",
+      "match": "^;.*$"
+    },
+    "nucleotides": {
+      "name": "keyword.other.nucleotide.fasta",
+      "match": "[ACGTUacgtu]+"
+    },
+    "ambiguous": {
+      "name": "constant.language.ambiguous.fasta",
+      "match": "[NnRrYySsWwKkMmBbDdHhVv-]+"
+    },
+    "aminoAcids": {
+      "name": "string.quoted.aminoacid.fasta",
+      "match": "[ACDEFGHIKLMNPQRSTVWYacdefghiklmnpqrstvwy*-]+"
+    }
+  }
+}
