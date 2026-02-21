@@ -1,7 +1,213 @@
 {
+  "name": "gameanimation64-bio",
+  "displayName": "GameAnimation64 Bio Research",
+  "description": "VSCode extension for biotech, biochemistry, physics, bioinformatics, and disease/virus/mutation research, integrated with the GameAnimation64/Pyrite64 engine.",
+  "version": "0.1.0",
+  "publisher": "ncsound919",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization",
+    "Data Science"
+  ],
+  "keywords": [
+    "bioinformatics",
+    "biotech",
+    "biochemistry",
+    "physics",
+    "mutation",
+    "sequence",
+    "virus",
+    "disease",
+    "research",
+    "n64",
+    "animation"
+  ],
+  "activationEvents": [
+    "onCommand:bioResearch.openPanel",
+    "onCommand:bioResearch.analyzeSequence",
+    "onCommand:bioResearch.trackMutation",
+    "onCommand:bioResearch.physicsCalc",
+    "onCommand:bioResearch.parseFasta",
+    "onLanguage:fasta",
+    "onLanguage:fastq",
+    "workspaceContains:**/*.fasta",
+    "workspaceContains:**/*.fa",
+    "workspaceContains:**/*.fastq",
+    "workspaceContains:**/*.pdb"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "bioResearch.openPanel",
+        "title": "Open Bio Research Panel",
+        "category": "Bio Research",
+        "icon": "$(microscope)"
+      },
+      {
+        "command": "bioResearch.analyzeSequence",
+        "title": "Analyze Biological Sequence",
+        "category": "Bio Research",
+        "icon": "$(symbol-string)"
+      },
+      {
+        "command": "bioResearch.trackMutation",
+        "title": "Track Mutations / Variants",
+        "category": "Bio Research",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "bioResearch.physicsCalc",
+        "title": "Biophysics Calculator",
+        "category": "Bio Research",
+        "icon": "$(calculator)"
+      },
+      {
+        "command": "bioResearch.parseFasta",
+        "title": "Parse FASTA / FASTQ File",
+        "category": "Bio Research",
+        "icon": "$(file-code)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "bioResearchSidebar",
+          "title": "Bio Research",
+          "icon": "$(beaker)"
+        }
+      ]
+    },
+    "views": {
+      "bioResearchSidebar": [
+        {
+          "id": "bioResearch.sequenceView",
+          "name": "Sequence Analysis",
+          "type": "webview"
+        },
+        {
+          "id": "bioResearch.mutationView",
+          "name": "Mutation Tracker",
+          "type": "webview"
+        },
+        {
+          "id": "bioResearch.physicsView",
+          "name": "Biophysics Calculator",
+          "type": "webview"
+        }
+      ]
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "bioResearch.openPanel",
+          "group": "navigation",
+          "when": "resourceExtname == .fasta || resourceExtname == .fa || resourceExtname == .fastq || resourceExtname == .pdb"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "bioResearch.parseFasta",
+          "when": "resourceExtname == .fasta || resourceExtname == .fa || resourceExtname == .fastq",
+          "group": "bioResearch"
+        },
+        {
+          "command": "bioResearch.analyzeSequence",
+          "when": "resourceExtname == .fasta || resourceExtname == .fa",
+          "group": "bioResearch"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "fasta",
+        "aliases": [
+          "FASTA",
+          "fasta"
+        ],
+        "extensions": [
+          ".fasta",
+          ".fa",
+          ".fna",
+          ".ffn",
+          ".faa",
+          ".frn"
+        ],
+        "mimetypes": [
+          "text/x-fasta"
+        ]
+      },
+      {
+        "id": "fastq",
+        "aliases": [
+          "FASTQ",
+          "fastq"
+        ],
+        "extensions": [
+          ".fastq",
+          ".fq"
+        ],
+        "mimetypes": [
+          "text/x-fastq"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "fasta",
+        "scopeName": "text.fasta",
+        "path": "./syntaxes/fasta.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Bio Research",
+      "properties": {
+        "bioResearch.anthropicApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Anthropic API key for AI-assisted bio research analysis. Get one at [anthropic.com](https://www.anthropic.com). **Store in your user settings (not workspace) to keep it private.**",
+          "scope": "machine"
+        },
+        "bioResearch.defaultOrganism": {
+          "type": "string",
+          "default": "Homo sapiens",
+          "description": "Default organism for sequence analysis context."
+        },
+        "bioResearch.maxSequenceLength": {
+          "type": "number",
+          "default": 100000,
+          "description": "Maximum sequence length (bp/aa) to analyze in the panel. Longer sequences are summarized."
+        },
+        "bioResearch.physicsUnits": {
+          "type": "string",
+          "enum": [
+            "SI",
+            "CGS",
+            "natural"
+          ],
+          "default": "SI",
+          "description": "Unit system used in the Biophysics Calculator."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p tsconfig.extension.json",
+    "watch": "tsc -watch -p tsconfig.extension.json",
+    "package": "vsce package",
+    "lint": "eslint . --ext .ts"
+  },
   "dependencies": {
     "@types/three": "^0.183.0",
     "three": "^0.183.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.33",
+    "@types/vscode": "^1.85.0"
   }
 }
